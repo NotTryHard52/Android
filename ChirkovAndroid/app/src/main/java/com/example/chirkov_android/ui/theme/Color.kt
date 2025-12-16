@@ -15,3 +15,4 @@ val Hint = Color(0xFF6A6A6A);
 val Block = Color(0xFFFFFFFF);
 val Accent = Color(0xFF48B2E7);
 val Disable = Color(0xFF2B6B8B);
+val Red = Color(0xFFF87265);
