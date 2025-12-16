@@ -4,4 +4,5 @@ sealed class Screens(val route: String) {
     object Register : Screens("register")
     object SignIn : Screens("sign_in")
     object ForgotPassword : Screens("forgot_password")
+    object OtpVerification : Screens("otp_verification")
 }

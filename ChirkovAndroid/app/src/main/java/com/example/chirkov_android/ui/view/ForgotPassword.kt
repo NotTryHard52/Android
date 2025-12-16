@@ -34,13 +34,23 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.androidpracapp.ui.components.MessageDialog
 import com.example.chirkov_android.R
 import com.example.chirkov_android.ui.components.ActiveButton
 import com.example.chirkov_android.ui.theme.Background
 import com.example.chirkov_android.ui.theme.SubTextDark
 
 @Composable
-fun ForgotPassword(onBackClick: () -> Unit = {}, modifier: Modifier = Modifier) {
+fun ForgotPassword(onBackClick: () -> Unit = {}, onOtpClick: () -> Unit = {}, modifier: Modifier = Modifier) {
+    var email by remember { mutableStateOf("") }
+    var showSuccessDialog by remember { mutableStateOf(false) }
+    var showEmailError by remember { mutableStateOf(false) }
+
+    fun isEmailValid(email: String): Boolean {
+        val regex = Regex("""^[a-z0-9]+@[a-z0-9]+\.[a-z]{2,}$""")
+        return regex.matches(email.trim().lowercase())
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -83,7 +93,6 @@ fun ForgotPassword(onBackClick: () -> Unit = {}, modifier: Modifier = Modifier) 
         Spacer(modifier = Modifier.height(40.dp))
 
         Column(modifier = Modifier.fillMaxWidth()) {
-            var email by remember { mutableStateOf("") }
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(
                     value = email,
@@ -101,14 +110,36 @@ fun ForgotPassword(onBackClick: () -> Unit = {}, modifier: Modifier = Modifier) 
             }
 
             Spacer(modifier = Modifier.height(40.dp))
-            ActiveButton(
-                onClick = {},
-                text = stringResource(R.string.Send),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(14.dp))
-            )
+        ActiveButton(
+            onClick = {
+                if (!isEmailValid(email)) {
+                    showEmailError = true
+                    return@ActiveButton
+                }
+                showSuccessDialog = true // ✅ успех
+            },
+            text = stringResource(R.string.Send),
+            modifier = Modifier.fillMaxWidth() // ✅ убрали .clip()
+        )
         }
+    if (showEmailError) {
+        MessageDialog(
+            title = "Некорректный email",
+            description = "Email должен соответствовать формату name@domenname.ru\n(только маленькие буквы и цифры, домен минимум 3 символа)",
+            onOk = { showEmailError = false }
+        )
+    }
+
+    if (showSuccessDialog) {
+        MessageDialog(
+            title = "Проверьте Ваш Email",
+            description = "Мы отправили код восстановления пароля на вашу электронную почту.",
+            onOk = {
+                showSuccessDialog = false
+                onOtpClick()
+            }
+        )
+    }
     }
 
 @Preview

@@ -32,6 +32,12 @@ fun NavigationScreen(navController: NavHostController) {
                 onBackClick = { navController.popBackStack() } // возврат
             )
         }
+        composable("forgot_password") {
+            ForgotPassword(
+                onBackClick = { navController.popBackStack() },
+                onOtpClick = { navController.navigate("otp_verification") } // ✅ переход
+            )
+        }
     }
 }
 
