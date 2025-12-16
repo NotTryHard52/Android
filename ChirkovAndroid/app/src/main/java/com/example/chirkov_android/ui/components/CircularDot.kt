@@ -22,15 +22,16 @@ import com.example.chirkov_android.ui.theme.Background
 
 @Composable
 fun CircularDot(
-    modifier: Modifier = Modifier,
-    isSelected: Boolean = false // добавили состояние
+    isSelected: Boolean = false,
+    onClick: () -> Unit = {}, // добавили callback
+    modifier: Modifier = Modifier
 ) {
     Box(
         modifier = modifier
             .size(18.dp)
             .clip(RoundedCornerShape(6.dp))
-            .background(if (isSelected) Accent else Background) // меняем цвет фона
-            .clickable { /* обработчик клика будет в родителе */ },
+            .background(if (isSelected) Accent else Background)
+            .clickable { onClick() }, // клик здесь!
         contentAlignment = Alignment.Center
     ) {
         Image(

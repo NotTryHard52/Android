@@ -1,6 +1,7 @@
 package com.example.chirkov_android.ui.view
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -39,7 +40,7 @@ import com.example.chirkov_android.ui.theme.Background
 import com.example.chirkov_android.ui.theme.SubTextDark
 
 @Composable
-fun ForgotPassword(modifier: Modifier = Modifier) {
+fun ForgotPassword(onBackClick: () -> Unit = {}, modifier: Modifier = Modifier) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -49,7 +50,8 @@ fun ForgotPassword(modifier: Modifier = Modifier) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 67.dp),
+                .padding(top = 67.dp)
+                .clickable { onBackClick() },
             verticalAlignment = Alignment.CenterVertically
         ) {
             Image(

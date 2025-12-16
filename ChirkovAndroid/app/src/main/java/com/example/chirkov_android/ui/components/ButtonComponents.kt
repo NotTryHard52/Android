@@ -25,16 +25,19 @@ import com.example.chirkov_android.ui.theme.Disable
 @Composable
 fun BaseButtonContent(
     text: String,
-    backgroundColor: Color = Color(0xFF2B6B8B), // вынесли цвет в параметр
+    backgroundColor: Color = Color(0xFF2B6B8B),
     onClick: () -> Unit,
+    enabled: Boolean = true, // добавьте этот параметр!
     modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
             .height(50.dp)
-            .background(backgroundColor) // используем переданный цвет
-            .clickable(enabled = true) { onClick() }, // убрали enabled = false
+            .background(backgroundColor)
+            .clickable(enabled = enabled) { // используйте enabled!
+                onClick()
+            },
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -49,30 +52,30 @@ fun BaseButtonContent(
 }
 
 @Composable
+fun ActiveButton(
+    text: String,
+    onClick: () -> Unit,
+    enabled: Boolean = true,
+    modifier: Modifier = Modifier.fillMaxWidth()
+) {
+    BaseButtonContent(
+        text = text,
+        backgroundColor = if (enabled) Accent else Disable,
+        onClick = onClick,
+        enabled = enabled, // передайте enabled!
+        modifier = modifier.clip(RoundedCornerShape(14.dp))
+    )
+}
+
+@Composable
 fun DisabledButton(
     text: String,
     modifier: Modifier = Modifier.fillMaxWidth()
 ) {
     BaseButtonContent(
         text = text,
-        backgroundColor = Disable, // серый цвет
-        onClick = {}, // пустой callback
+        backgroundColor = Disable,
+        onClick = {},
         modifier = modifier.clip(RoundedCornerShape(14.dp))
-    )
-}
-
-@Composable
-fun ActiveButton(
-    text: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier.fillMaxWidth()
-) {
-    BaseButtonContent(
-        text = text,
-        backgroundColor = Accent,
-        onClick = onClick,
-        modifier = modifier
-            .clip(RoundedCornerShape(14.dp)) // clip ДО background
-            .background(Accent) // background ДО clickable
     )
 }

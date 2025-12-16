@@ -1,6 +1,7 @@
 package com.example.chirkov_android.ui.view
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -39,12 +40,13 @@ import com.example.chirkov_android.R
 import com.example.chirkov_android.ui.components.ActiveButton
 import com.example.chirkov_android.ui.components.CircularDot
 import com.example.chirkov_android.ui.components.DisabledButton
+import com.example.chirkov_android.ui.theme.Accent
 import com.example.chirkov_android.ui.theme.Background
 import com.example.chirkov_android.ui.theme.Hint
 import com.example.chirkov_android.ui.theme.SubTextDark
 
 @Composable
-fun SignIn(modifier: Modifier = Modifier) {
+fun SignIn(onRegisterClick: () -> Unit = {}, onForgotPasswordClick: () -> Unit = {},  modifier: Modifier = Modifier) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -139,7 +141,9 @@ fun SignIn(modifier: Modifier = Modifier) {
                 )
                 Text(
                     text = stringResource(R.string.Restore),
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onForgotPasswordClick() },
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Normal,
                     lineHeight = 16.sp,
@@ -158,19 +162,32 @@ fun SignIn(modifier: Modifier = Modifier) {
             )
         }
 
-            Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.weight(1f))
+        Row(
+            modifier = Modifier
+                .padding(bottom = 47.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Text(
-                text = stringResource(R.string.CreateUser),
-                modifier = Modifier
-                    .padding(bottom = 47.dp)
-                    .fillMaxWidth(),
+                text = "Вы впервые?",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Normal,
-                textAlign = TextAlign.Center,
-                lineHeight = 16.sp
+                lineHeight = 16.sp,
+                color = SubTextDark
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                text = "Создать",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Normal,
+                lineHeight = 16.sp,
+                modifier = Modifier.clickable { onRegisterClick() }
             )
         }
     }
+}
 
 @Preview
 @Composable
