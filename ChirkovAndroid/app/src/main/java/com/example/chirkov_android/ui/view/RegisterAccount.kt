@@ -1,6 +1,7 @@
 package com.example.chirkov_android.ui.view
 
 import android.graphics.drawable.Icon
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,6 +20,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -41,9 +45,33 @@ import com.example.chirkov_android.ui.theme.Background
 import com.example.chirkov_android.ui.theme.Hint
 import com.example.chirkov_android.ui.theme.SubTextDark
 import com.example.chirkov_android.R
+import com.example.chirkov_android.data.module.SignUpRequest
+import com.example.chirkov_android.ui.components.ActiveButton
+import com.example.myfirstapplication.ui.viewModel.SignUpState
+import com.example.myfirstapplication.ui.viewModel.SignUpViewModel
 
 @Composable
 fun RegisterAccount(modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    val signUpViewModel = remember { SignUpViewModel() } // без Hilt
+    var name by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+
+    val signUpState by signUpViewModel.signUpState.collectAsState()
+
+    LaunchedEffect(signUpState) {
+        when (signUpState) {
+            is SignUpState.Success -> {
+                Toast.makeText(context, "Регистрация успешна!", Toast.LENGTH_SHORT).show()
+            }
+            is SignUpState.Error -> {
+                Toast.makeText(context, (signUpState as SignUpState.Error).message, Toast.LENGTH_LONG).show()
+            }
+            else -> {}
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -84,91 +112,106 @@ fun RegisterAccount(modifier: Modifier = Modifier) {
 
         Spacer(modifier = Modifier.height(54.dp))
 
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            var name by remember { mutableStateOf("") }
-            Text(
-                text = stringResource(R.string.Name),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium,
-                lineHeight = 20.sp
-            )
-            OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(14.dp),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Background,
-                    unfocusedContainerColor = Background,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
-                )
-            )
-
-            var email by remember { mutableStateOf("") }
-            Text(
-                text = stringResource(R.string.Email),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium,
-                lineHeight = 20.sp
-            )
-            OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(14.dp),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Background,
-                    unfocusedContainerColor = Background,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
-                )
-            )
-
-            var password by remember { mutableStateOf("") }
-            Text(
-                text = stringResource(R.string.Password),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium,
-                lineHeight = 20.sp
-            )
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                visualTransformation = PasswordVisualTransformation(),
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(14.dp),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Background,
-                    unfocusedContainerColor = Background,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
-                ),
-                trailingIcon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.union),
-                        contentDescription = "Глаз",
-                        tint = LocalContentColor.current
-                    )
-                }
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                CircularDot()
-                Spacer(modifier = Modifier.width(12.dp))
+        Column(modifier = Modifier.fillMaxWidth()) {
+            // Email поле
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(
-                    text = stringResource(R.string.PersonalData),
+                    text = stringResource(R.string.Name),
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.Normal,
-                    color = Hint,
-                    textDecoration = TextDecoration.Underline
+                    fontWeight = FontWeight.Medium,
+                    lineHeight = 20.sp
+                )
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Background,
+                        unfocusedContainerColor = Background,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
+                    )
                 )
             }
+
+            // Email поле
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(
+                    text = stringResource(R.string.Email),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    lineHeight = 20.sp
+                )
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Background,
+                        unfocusedContainerColor = Background,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
+                    )
+                )
+            }
+
+            // Password поле + checkbox
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(
+                    text = stringResource(R.string.Password),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    lineHeight = 20.sp
+                )
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    visualTransformation = PasswordVisualTransformation(),
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Background,
+                        unfocusedContainerColor = Background,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
+                    ),
+                    trailingIcon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.union),
+                            contentDescription = "Глаз",
+                            tint = LocalContentColor.current
+                        )
+                    }
+                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    CircularDot()
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = stringResource(R.string.PersonalData),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = Hint,
+                        textDecoration = TextDecoration.Underline
+                    )
+                }
+            }
+
             Spacer(modifier = Modifier.height(24.dp))
-            DisabledButton(text = stringResource(R.string.SignUp),)
+
+            // Активная кнопка регистрации
+            ActiveButton(
+                text = stringResource(R.string.SignUp),
+                onClick = {
+                    val signUpRequest = SignUpRequest(
+                        email = email,
+                        password = password
+                    )
+                    signUpViewModel.signUp(signUpRequest)
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
 
             Spacer(modifier = Modifier.weight(1f))
             Text(
