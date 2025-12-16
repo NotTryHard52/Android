@@ -59,7 +59,6 @@ import com.example.myfirstapplication.ui.viewModel.SignUpViewModel
 
 @Composable
 fun RegisterAccount(onSignInClick: () -> Unit = {},modifier: Modifier = Modifier) {
-    val context = LocalContext.current
     val signUpViewModel = remember { SignUpViewModel() }
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -67,6 +66,8 @@ fun RegisterAccount(onSignInClick: () -> Unit = {},modifier: Modifier = Modifier
     var passwordVisible by remember { mutableStateOf(false) }
     var isPersonalDataChecked by remember { mutableStateOf(false) }
     var showEmailError by remember { mutableStateOf(false) }
+    var showServerError by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
 
     val signUpState by signUpViewModel.signUpState.collectAsState()
 
@@ -78,10 +79,22 @@ fun RegisterAccount(onSignInClick: () -> Unit = {},modifier: Modifier = Modifier
     LaunchedEffect(signUpState) {
         when (signUpState) {
             is SignUpState.Success -> {
-                Toast.makeText(context, "Регистрация успешна!", Toast.LENGTH_SHORT).show()
+                onSignInClick()
             }
             is SignUpState.Error -> {
-                Toast.makeText(context, (signUpState as SignUpState.Error).message, Toast.LENGTH_LONG).show()
+                errorMessage = when {
+                    (signUpState as SignUpState.Error).message.contains("нет соединения") ||
+                            (signUpState as SignUpState.Error).message.contains("network") ||
+                            (signUpState as SignUpState.Error).message.contains("timeout") ->
+                        "Нет соединения с интернетом\nПроверьте подключение и повторите"
+
+                    (signUpState as SignUpState.Error).message.contains("сервер") ||
+                            (signUpState as SignUpState.Error).message.contains("server") ->
+                        "Ошибка сервера\nПопробуйте позже"
+
+                    else -> (signUpState as SignUpState.Error).message
+                }
+                showServerError = true
             }
             else -> {}
         }
@@ -233,7 +246,6 @@ fun RegisterAccount(onSignInClick: () -> Unit = {},modifier: Modifier = Modifier
             ActiveButton(
                 text = stringResource(R.string.SignUp),
                 onClick = {
-                    // Проверка email перед регистрацией
                     if (!isEmailValid(email)) {
                         showEmailError = true
                         return@ActiveButton
@@ -281,8 +293,18 @@ fun RegisterAccount(onSignInClick: () -> Unit = {},modifier: Modifier = Modifier
         MessageDialog(
             title = "Некорректный email",
             description = "Email должен соответствовать формату name@domenname.ru\n(только маленькие буквы и цифры, домен минимум 3 символа)",
-            onOk = { showEmailError = false },
-            showButtons = true
+            onOk = { showEmailError = false }
+        )
+    }
+
+    if (showServerError) {
+        MessageDialog(
+            title = "Ошибка",
+            description = errorMessage,
+            onOk = {
+                showServerError = false
+                signUpViewModel.resetState()
+            }
         )
     }
 }
