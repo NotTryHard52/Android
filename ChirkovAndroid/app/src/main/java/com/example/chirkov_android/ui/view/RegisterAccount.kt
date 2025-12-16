@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -37,11 +38,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.androidpracapp.ui.components.MessageDialog
 import com.example.chirkov_android.ui.components.CircularDot
 import com.example.chirkov_android.ui.components.DisabledButton
 import com.example.chirkov_android.ui.theme.Background
@@ -61,9 +64,16 @@ fun RegisterAccount(onSignInClick: () -> Unit = {},modifier: Modifier = Modifier
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
     var isPersonalDataChecked by remember { mutableStateOf(false) }
+    var showEmailError by remember { mutableStateOf(false) }
 
     val signUpState by signUpViewModel.signUpState.collectAsState()
+
+    fun isEmailValid(email: String): Boolean {
+        val regex = Regex("""^[a-z0-9]+@[a-z0-9]+\.[a-z]{2,}$""")
+        return regex.matches(email.trim().lowercase())
+    }
 
     LaunchedEffect(signUpState) {
         when (signUpState) {
@@ -176,7 +186,10 @@ fun RegisterAccount(onSignInClick: () -> Unit = {},modifier: Modifier = Modifier
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
-                    visualTransformation = PasswordVisualTransformation(),
+                    visualTransformation = if (passwordVisible)
+                        VisualTransformation.None
+                    else
+                        PasswordVisualTransformation(), // ✅ меняется видимость
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(14.dp),
                     colors = TextFieldDefaults.colors(
@@ -186,11 +199,15 @@ fun RegisterAccount(onSignInClick: () -> Unit = {},modifier: Modifier = Modifier
                         unfocusedIndicatorColor = Color.Transparent
                     ),
                     trailingIcon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.union),
-                            contentDescription = "Глаз",
-                            tint = LocalContentColor.current
-                        )
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) { // ✅ кликабельная иконка
+                            Icon(
+                                painter = painterResource(
+                                    id = if (passwordVisible) R.drawable.union_on else R.drawable.union
+                                ),
+                                contentDescription = if (passwordVisible) "Скрыть пароль" else "Показать пароль",
+                                tint = LocalContentColor.current
+                            )
+                        }
                     }
                 )
 
@@ -216,11 +233,18 @@ fun RegisterAccount(onSignInClick: () -> Unit = {},modifier: Modifier = Modifier
             ActiveButton(
                 text = stringResource(R.string.SignUp),
                 onClick = {
-                    val signUpRequest = SignUpRequest(
-                        email = email,
-                        password = password
-                    )
-                    signUpViewModel.signUp(signUpRequest)
+                    // Проверка email перед регистрацией
+                    if (!isEmailValid(email)) {
+                        showEmailError = true
+                        return@ActiveButton
+                    }
+                    if (isPersonalDataChecked) {
+                        val signUpRequest = SignUpRequest(
+                            email = email,
+                            password = password
+                        )
+                        signUpViewModel.signUp(signUpRequest)
+                    }
                 },
                 enabled = isPersonalDataChecked,
                 modifier = Modifier.fillMaxWidth()
@@ -252,6 +276,14 @@ fun RegisterAccount(onSignInClick: () -> Unit = {},modifier: Modifier = Modifier
                 )
             }
         }
+    }
+    if (showEmailError) {
+        MessageDialog(
+            title = "Некорректный email",
+            description = "Email должен соответствовать формату name@domenname.ru\n(только маленькие буквы и цифры, домен минимум 3 символа)",
+            onOk = { showEmailError = false },
+            showButtons = true
+        )
     }
 }
 
