@@ -3,6 +3,7 @@ package com.example.chirkov_android.data.service
 import com.example.chirkov_android.data.module.ForgotPasswordRequest
 import com.example.chirkov_android.data.module.SignUpRequest
 import com.example.chirkov_android.data.module.SignUpResponse
+import com.example.chirkov_android.data.module.UpdatePasswordRequest
 import com.example.chirkov_android.data.module.VerifyEmailOtpRequest
 import com.example.myfirstapplication.data.module.SignInRequest
 import com.example.myfirstapplication.data.module.SignInResponse
@@ -41,5 +42,14 @@ interface UserManagmentService {
     @POST("auth/v1/verify")
     suspend fun verifyEmailOtp(
         @Body body: VerifyEmailOtpRequest
+    ): Response<Void>
+
+    @Headers(
+        "apikey: $API_KEY",
+        "Content-Type: application/json"
+    )
+    @POST("auth/v1/user")
+    suspend fun updatePassword(
+        @Body body: UpdatePasswordRequest
     ): Response<Void>
 }

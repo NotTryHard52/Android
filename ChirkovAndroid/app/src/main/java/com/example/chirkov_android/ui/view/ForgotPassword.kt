@@ -45,7 +45,7 @@ import com.example.chirkov_android.ui.viewModel.ForgotPasswordViewModel
 import com.example.chirkov_android.ui.viewModel.ForgotState
 
 @Composable
-fun ForgotPassword(onBackClick: () -> Unit = {}, onOtpClick: () -> Unit = {}, modifier: Modifier = Modifier) {
+fun ForgotPassword(onBackClick: () -> Unit = {}, onOtpClick: (String) -> Unit = {}, modifier: Modifier = Modifier) {
     val forgotPasswordViewModel = remember { ForgotPasswordViewModel() }
     var email by remember { mutableStateOf("") }
     var showSuccessDialog by remember { mutableStateOf(false) }
@@ -62,7 +62,7 @@ fun ForgotPassword(onBackClick: () -> Unit = {}, onOtpClick: () -> Unit = {}, mo
     LaunchedEffect(forgotState) {
         when (forgotState) {
             is ForgotState.Success -> {
-                onOtpClick()
+                onOtpClick(email)
             }
             is ForgotState.Error -> {
                 // ✅ Показываем диалог ошибки из ViewModel
@@ -157,7 +157,7 @@ fun ForgotPassword(onBackClick: () -> Unit = {}, onOtpClick: () -> Unit = {}, mo
                 description = "Мы отправили код восстановления пароля на вашу электронную почту.",
                 onOk = {
                     forgotPasswordViewModel.resetState()
-                    onOtpClick()
+                    onOtpClick(email)
                 }
             )
         }

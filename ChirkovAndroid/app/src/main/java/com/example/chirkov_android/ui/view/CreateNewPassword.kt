@@ -19,6 +19,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
@@ -40,12 +41,14 @@ import com.example.chirkov_android.R
 import com.example.chirkov_android.ui.components.ActiveButton
 import com.example.chirkov_android.ui.theme.Background
 import com.example.chirkov_android.ui.theme.SubTextDark
+import com.example.chirkov_android.ui.viewModel.CreateNewPasswordViewModel
 
 @Composable
 fun CreateNewPassword(
     onBackClick: () -> Unit = {},
-    onSaveClick: (String) -> Unit = {},
-    modifier: Modifier = Modifier
+    onNavigateToSignIn: () -> Unit = {},
+    modifier: Modifier = Modifier,
+    viewModel: CreateNewPasswordViewModel = remember { CreateNewPasswordViewModel() }
 ) {
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
@@ -55,6 +58,29 @@ fun CreateNewPassword(
     var showEmptyError by remember { mutableStateOf(false) }
     var passwordError by remember { mutableStateOf(false) }
     var confirmPasswordError by remember { mutableStateOf(false) }
+
+    val isLoading by viewModel.isLoading.collectAsState()
+    val isError by viewModel.isError.collectAsState()
+    val isSuccess by viewModel.isSuccess.collectAsState()
+
+    if (isSuccess) {
+        MessageDialog(
+            title = "Пароль изменён",
+            description = "Теперь вы можете войти с новым паролем.",
+            onOk = {
+                viewModel.resetState()
+                onNavigateToSignIn()
+            }
+        )
+    }
+
+    if (isError != null) {
+        MessageDialog(
+            title = "Ошибка",
+            description = isError ?: "",
+            onOk = { viewModel.resetState() }
+        )
+    }
 
     Column(
         modifier = modifier
@@ -190,10 +216,10 @@ fun CreateNewPassword(
         }
 
         Spacer(modifier = Modifier.height(40.dp))
-
         ActiveButton(
             text = stringResource(R.string.Save),
             modifier = Modifier.fillMaxWidth(),
+            enabled = !isLoading,
             onClick = {
                 passwordError = false
                 confirmPasswordError = false
@@ -208,7 +234,7 @@ fun CreateNewPassword(
                         confirmPasswordError = true
                     }
                     else -> {
-                        onSaveClick(password)
+                        viewModel.updatePassword(password)
                     }
                 }
             }
