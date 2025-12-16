@@ -14,11 +14,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,11 +34,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.androidpracapp.ui.components.MessageDialog
 import com.example.chirkov_android.R
 import com.example.chirkov_android.ui.components.ActiveButton
 import com.example.chirkov_android.ui.components.CircularDot
@@ -44,9 +49,27 @@ import com.example.chirkov_android.ui.theme.Accent
 import com.example.chirkov_android.ui.theme.Background
 import com.example.chirkov_android.ui.theme.Hint
 import com.example.chirkov_android.ui.theme.SubTextDark
+import com.example.chirkov_android.ui.viewModel.SignInState
+import com.example.chirkov_android.ui.viewModel.SignInViewModel
+import com.example.myfirstapplication.ui.viewModel.SignUpState
 
 @Composable
 fun SignIn(onRegisterClick: () -> Unit = {}, onForgotPasswordClick: () -> Unit = {},  modifier: Modifier = Modifier) {
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
+    var showEmailError by remember { mutableStateOf(false) }
+    var showEmptyFieldsError by remember { mutableStateOf(false) }
+
+    fun isEmailValid(email: String): Boolean {
+        val regex = Regex("""^[a-z0-9]+@[a-z0-9]+\.[a-z]{2,}$""")
+        return regex.matches(email.trim().lowercase())
+    }
+
+    fun areFieldsEmpty(): Boolean {
+        return email.trim().isEmpty() || password.trim().isEmpty()
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -112,7 +135,6 @@ fun SignIn(onRegisterClick: () -> Unit = {}, onForgotPasswordClick: () -> Unit =
             }
 
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                var password by remember { mutableStateOf("") }
                 Text(
                     text = stringResource(R.string.Password),
                     fontSize = 16.sp,
@@ -122,7 +144,10 @@ fun SignIn(onRegisterClick: () -> Unit = {}, onForgotPasswordClick: () -> Unit =
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
-                    visualTransformation = PasswordVisualTransformation(),
+                    visualTransformation = if (passwordVisible)
+                        VisualTransformation.None
+                    else
+                        PasswordVisualTransformation(),
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(14.dp),
                     colors = TextFieldDefaults.colors(
@@ -132,11 +157,15 @@ fun SignIn(onRegisterClick: () -> Unit = {}, onForgotPasswordClick: () -> Unit =
                         unfocusedIndicatorColor = Color.Transparent
                     ),
                     trailingIcon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.union),
-                            contentDescription = "Глаз",
-                            tint = LocalContentColor.current
-                        )
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                            Icon(
+                                painter = painterResource(
+                                    id = if (passwordVisible) R.drawable.union_on else R.drawable.union
+                                ),
+                                contentDescription = if (passwordVisible) "Скрыть пароль" else "Показать пароль",
+                                tint = LocalContentColor.current
+                            )
+                        }
                     }
                 )
                 Text(
@@ -154,11 +183,21 @@ fun SignIn(onRegisterClick: () -> Unit = {}, onForgotPasswordClick: () -> Unit =
 
             Spacer(modifier = Modifier.height(24.dp))
             ActiveButton(
-                onClick = {},
+                onClick = {
+                    if (areFieldsEmpty()) {
+                        showEmptyFieldsError = true
+                        return@ActiveButton
+                    }
+
+                    if (!isEmailValid(email)) {
+                        showEmailError = true
+                        return@ActiveButton
+                    }
+
+                    // TODO: логика входа
+                },
                 text = stringResource(R.string.SignIn),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(14.dp))
+                modifier = Modifier.fillMaxWidth()
             )
         }
 
@@ -186,6 +225,21 @@ fun SignIn(onRegisterClick: () -> Unit = {}, onForgotPasswordClick: () -> Unit =
                 modifier = Modifier.clickable { onRegisterClick() }
             )
         }
+    }
+    if (showEmptyFieldsError) {
+        MessageDialog(
+            title = "Поля не заполнены",
+            description = "Заполните email и пароль для входа",
+            onOk = { showEmptyFieldsError = false }
+        )
+    }
+
+    if (showEmailError) {
+        MessageDialog(
+            title = "Некорректный email",
+            description = "Email должен соответствовать формату name@domenname.ru\n(только маленькие буквы и цифры, домен минимум 3 символа)",
+            onOk = { showEmailError = false }
+        )
     }
 }
 
