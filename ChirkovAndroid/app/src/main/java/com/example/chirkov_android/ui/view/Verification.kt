@@ -172,5 +172,5 @@ fun Verification(
 @Preview
 @Composable
 private fun VerificationPreview() {
-    
+
 }

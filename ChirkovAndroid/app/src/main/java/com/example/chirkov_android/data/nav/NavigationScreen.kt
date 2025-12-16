@@ -18,7 +18,8 @@ fun NavigationScreen(navController: NavHostController) {
     ) {
         composable("register") {
             RegisterAccount(
-                onSignInClick = { navController.navigate("sign_in") }
+                onSignInClick = { navController.navigate("sign_in") },
+                onOtpClick = { navController.navigate("otp_verification") }
             )
         }
         composable("sign_in") {

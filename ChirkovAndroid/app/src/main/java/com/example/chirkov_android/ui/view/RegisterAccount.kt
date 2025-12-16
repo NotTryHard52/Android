@@ -58,7 +58,7 @@ import com.example.myfirstapplication.ui.viewModel.SignUpState
 import com.example.myfirstapplication.ui.viewModel.SignUpViewModel
 
 @Composable
-fun RegisterAccount(onSignInClick: () -> Unit = {},modifier: Modifier = Modifier) {
+fun RegisterAccount(onSignInClick: () -> Unit = {}, onOtpClick: (String) -> Unit = {}, modifier: Modifier = Modifier) {
     val signUpViewModel = remember { SignUpViewModel() }
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -79,7 +79,7 @@ fun RegisterAccount(onSignInClick: () -> Unit = {},modifier: Modifier = Modifier
     LaunchedEffect(signUpState) {
         when (signUpState) {
             is SignUpState.Success -> {
-                onSignInClick()
+                onOtpClick(email)
             }
             is SignUpState.Error -> {
                 errorMessage = when {
