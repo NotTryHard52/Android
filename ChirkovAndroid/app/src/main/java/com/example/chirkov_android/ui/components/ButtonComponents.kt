@@ -19,10 +19,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.chirkov_android.ui.theme.Accent
+import com.example.chirkov_android.ui.theme.Disable
 
 @Composable
 fun BaseButtonContent(
     text: String,
+    backgroundColor: Color = Color(0xFF2B6B8B), // вынесли цвет в параметр
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -30,8 +33,8 @@ fun BaseButtonContent(
         modifier = modifier
             .fillMaxWidth()
             .height(50.dp)
-            .background(Color(0xFF2B6B8B))
-            .clickable(enabled = false) { },
+            .background(backgroundColor) // используем переданный цвет
+            .clickable(enabled = true) { onClick() }, // убрали enabled = false
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -52,9 +55,9 @@ fun DisabledButton(
 ) {
     BaseButtonContent(
         text = text,
-        onClick = {},
-        modifier = modifier
-            .clip(RoundedCornerShape(14.dp))
+        backgroundColor = Disable, // серый цвет
+        onClick = {}, // пустой callback
+        modifier = modifier.clip(RoundedCornerShape(14.dp))
     )
 }
 
@@ -62,18 +65,14 @@ fun DisabledButton(
 fun ActiveButton(
     text: String,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier.width(335.dp)
+    modifier: Modifier = Modifier.fillMaxWidth()
 ) {
-    Box(
+    BaseButtonContent(
+        text = text,
+        backgroundColor = Accent,
+        onClick = onClick,
         modifier = modifier
-            .clip(RoundedCornerShape(14.dp))
-            .background(Color(0xFF48B2E7))
-            .clickable { onClick() }
-    ) {
-        BaseButtonContent(
-            text = text,
-            onClick = onClick,
-            modifier = Modifier.padding(horizontal = 93.dp, vertical = 14.dp)
-        )
-    }
+            .clip(RoundedCornerShape(14.dp)) // clip ДО background
+            .background(Accent) // background ДО clickable
+    )
 }

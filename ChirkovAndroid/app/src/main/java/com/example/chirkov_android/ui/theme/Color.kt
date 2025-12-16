@@ -13,3 +13,5 @@ val SubTextDark = Color(0xFF707B81);
 val Background = Color(0xFFF7F7F9);
 val Hint = Color(0xFF6A6A6A);
 val Block = Color(0xFFFFFFFF);
+val Accent = Color(0xFF48B2E7);
+val Disable = Color(0xFF2B6B8B);
