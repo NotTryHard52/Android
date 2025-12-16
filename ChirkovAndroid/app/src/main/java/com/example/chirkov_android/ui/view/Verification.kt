@@ -47,6 +47,7 @@ fun Verification(
     var code by remember { mutableStateOf(List(6) { "" }) }
     var secondsLeft by remember { mutableStateOf(30) }
     var canResend by remember { mutableStateOf(false) }
+    var isError by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         while (secondsLeft > 0) {
@@ -62,6 +63,7 @@ fun Verification(
             .padding(20.dp),
         verticalArrangement = Arrangement.Top
     ) {
+        // Back
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -76,6 +78,7 @@ fun Verification(
             )
         }
 
+        // Заголовок
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -104,19 +107,32 @@ fun Verification(
 
         Spacer(modifier = Modifier.height(20.dp))
 
+        // 6 ячеек
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             code.forEachIndexed { index, value ->
                 OTP(
                     value = value,
+                    isError = isError,
                     onValueChange = { new ->
                         val newCode = code.toMutableList()
                         newCode[index] = new
                         code = newCode
+                        isError = false   // сбрасываем ошибку при новом вводе
+
                         if (newCode.all { it.isNotEmpty() }) {
-                            onCodeComplete(newCode.joinToString(""))
+                            val fullCode = newCode.joinToString("")
+                            // здесь твоя реальная проверка кода
+                            val isValid = fullCode == "123456"
+
+                            if (isValid) {
+                                onCodeComplete(fullCode)
+                            } else {
+                                isError = true
+                            }
                         }
                     }
                 )
@@ -125,6 +141,7 @@ fun Verification(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Таймер / Отправить снова
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End
@@ -141,8 +158,11 @@ fun Verification(
                     fontSize = 12.sp,
                     color = Accent,
                     modifier = Modifier.clickable {
+                        // логика повторной отправки кода
                         secondsLeft = 30
                         canResend = false
+                        isError = false
+                        code = List(6) { "" }
                     }
                 )
             }

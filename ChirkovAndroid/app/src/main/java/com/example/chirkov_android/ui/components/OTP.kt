@@ -29,6 +29,7 @@ import com.example.chirkov_android.ui.theme.Background
 fun OTP(
     value: String,
     onValueChange: (String) -> Unit,
+    isError: Boolean,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -37,7 +38,11 @@ fun OTP(
             .height(99.dp)
             .clip(RoundedCornerShape(14.dp))
             .background(Background)
-            .border(1.dp, Color.Transparent, RoundedCornerShape(14.dp)),
+            .border(
+                width = 1.dp,
+                color = if (isError) Color.Red else Color.Transparent,
+                shape = RoundedCornerShape(14.dp)
+            ),
         contentAlignment = Alignment.Center
     ) {
         BasicTextField(
@@ -52,6 +57,7 @@ fun OTP(
                 textAlign = TextAlign.Center,
                 fontSize = 20.sp
             ),
+            modifier = Modifier.fillMaxWidth(),
             decorationBox = { innerTextField ->
                 innerTextField()
             }
