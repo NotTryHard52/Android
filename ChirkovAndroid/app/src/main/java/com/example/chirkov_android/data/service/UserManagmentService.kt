@@ -3,6 +3,7 @@ package com.example.chirkov_android.data.service
 import com.example.chirkov_android.data.module.ForgotPasswordRequest
 import com.example.chirkov_android.data.module.SignUpRequest
 import com.example.chirkov_android.data.module.SignUpResponse
+import com.example.chirkov_android.data.module.VerifyEmailOtpRequest
 import com.example.myfirstapplication.data.module.SignInRequest
 import com.example.myfirstapplication.data.module.SignInResponse
 import retrofit2.Response
@@ -32,4 +33,13 @@ interface UserManagmentService {
     )
     @POST("auth/v1/recover")
     suspend fun sendRecoveryCode(@Body request: ForgotPasswordRequest): Response<Void>
+
+    @Headers(
+        "apikey: $API_KEY",
+        "Content-Type: application/json"
+    )
+    @POST("auth/v1/verify")
+    suspend fun verifyEmailOtp(
+        @Body body: VerifyEmailOtpRequest
+    ): Response<Void>
 }

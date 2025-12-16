@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,16 +39,21 @@ import com.example.chirkov_android.ui.components.OTP
 import com.example.chirkov_android.ui.theme.Background
 import com.example.chirkov_android.ui.theme.SubTextDark
 import com.example.chirkov_android.ui.theme.Accent
+import com.example.chirkov_android.ui.viewModel.VerificationViewModel
 
 @Composable
 fun Verification(
+    email: String,
     onBackClick: () -> Unit = {},
-    onCodeComplete: (String) -> Unit = {},
+    onSuccess: () -> Unit = {},
+    viewModel: VerificationViewModel = remember { VerificationViewModel() }
 ) {
     var code by remember { mutableStateOf(List(6) { "" }) }
     var secondsLeft by remember { mutableStateOf(30) }
     var canResend by remember { mutableStateOf(false) }
-    var isError by remember { mutableStateOf(false) }
+
+    val isError by viewModel.isError.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
 
     LaunchedEffect(Unit) {
         while (secondsLeft > 0) {
@@ -63,7 +69,6 @@ fun Verification(
             .padding(20.dp),
         verticalArrangement = Arrangement.Top
     ) {
-        // Back
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -78,7 +83,6 @@ fun Verification(
             )
         }
 
-        // Заголовок
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -107,7 +111,6 @@ fun Verification(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // 6 ячеек
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -121,18 +124,15 @@ fun Verification(
                         val newCode = code.toMutableList()
                         newCode[index] = new
                         code = newCode
-                        isError = false   // сбрасываем ошибку при новом вводе
+                        viewModel.resetError()
 
-                        if (newCode.all { it.isNotEmpty() }) {
+                        if (newCode.all { it.isNotEmpty() } && !isLoading) {
                             val fullCode = newCode.joinToString("")
-                            // здесь твоя реальная проверка кода
-                            val isValid = fullCode == "123456"
-
-                            if (isValid) {
-                                onCodeComplete(fullCode)
-                            } else {
-                                isError = true
-                            }
+                            viewModel.verifyCode(
+                                email = email,
+                                code = fullCode,
+                                onSuccess = onSuccess
+                            )
                         }
                     }
                 )
@@ -141,7 +141,6 @@ fun Verification(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Таймер / Отправить снова
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End
@@ -157,11 +156,11 @@ fun Verification(
                     text = "Отправить снова",
                     fontSize = 12.sp,
                     color = Accent,
-                    modifier = Modifier.clickable {
-                        // логика повторной отправки кода
+                    modifier = Modifier.clickable(enabled = !isLoading) {
+                        // здесь дергаешь signUp/переотправку OTP на email
                         secondsLeft = 30
                         canResend = false
-                        isError = false
+                        viewModel.resetError()
                         code = List(6) { "" }
                     }
                 )
@@ -173,5 +172,5 @@ fun Verification(
 @Preview
 @Composable
 private fun VerificationPreview() {
-    Verification()
+    
 }
