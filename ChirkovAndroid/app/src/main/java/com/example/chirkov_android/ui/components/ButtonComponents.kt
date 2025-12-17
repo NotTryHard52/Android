@@ -21,13 +21,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.chirkov_android.ui.theme.Accent
 import com.example.chirkov_android.ui.theme.Disable
+import com.example.chirkov_android.ui.theme.Text
 
 @Composable
 fun BaseButtonContent(
     text: String,
     backgroundColor: Color = Color(0xFF2B6B8B),
+    textColor: Color = Color.White,
     onClick: () -> Unit,
-    enabled: Boolean = true, // добавьте этот параметр!
+    enabled: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -35,17 +37,14 @@ fun BaseButtonContent(
             .fillMaxWidth()
             .height(50.dp)
             .background(backgroundColor)
-            .clickable(enabled = enabled) { // используйте enabled!
-                onClick()
-            },
+            .clickable(enabled = enabled) { onClick() },
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             text = text,
             fontSize = 16.sp,
-            fontWeight = FontWeight.Medium,
-            color = Color.White,
+            color = textColor,
             textAlign = TextAlign.Center
         )
     }
@@ -62,7 +61,7 @@ fun ActiveButton(
         text = text,
         backgroundColor = if (enabled) Accent else Disable,
         onClick = onClick,
-        enabled = enabled, // передайте enabled!
+        enabled = enabled,
         modifier = modifier.clip(RoundedCornerShape(14.dp))
     )
 }
@@ -77,5 +76,23 @@ fun DisabledButton(
         backgroundColor = Disable,
         onClick = {},
         modifier = modifier.clip(RoundedCornerShape(14.dp))
+    )
+}
+
+@Composable
+fun WhiteButton(
+    text: String,
+    onClick: () -> Unit,
+    enabled: Boolean = true,
+    modifier: Modifier = Modifier.fillMaxWidth()
+) {
+    BaseButtonContent(
+        text = text,
+        backgroundColor = Color.White,
+        textColor = Color.Black,
+        onClick = onClick,
+        enabled = enabled,
+        modifier = modifier
+            .clip(RoundedCornerShape(14.dp))
     )
 }

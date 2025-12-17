@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Chirkov-Android</string>
-    <string name="Welcome">Добро пожаловать</string>
+    <string name="Welcome">Добро\nпожаловать</string>
     <string name="Journey">Начнем путешествие</string>
     <string name="Description">Умная, великолепная и модная коллекция Изучите сейчас</string>
     <string name="Strength">У вас есть сила, чтобы</string>
