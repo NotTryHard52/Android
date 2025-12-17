@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.chirkov_android.ui.view.CreateNewPassword
 import com.example.chirkov_android.ui.view.ForgotPassword
+import com.example.chirkov_android.ui.view.OnboardScreen
 import com.example.chirkov_android.ui.view.RegisterAccount
 import com.example.chirkov_android.ui.view.SignIn
 import com.example.chirkov_android.ui.view.Verification
@@ -15,7 +16,7 @@ import com.example.chirkov_android.ui.view.Verification
 fun NavigationScreen(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = Screen.Register.route
+        startDestination = "onboard"
     ) {
         // Регистрация
         composable(Screen.Register.route) {
@@ -66,6 +67,14 @@ fun NavigationScreen(navController: NavHostController) {
                     navController.navigate(Screen.SignIn.route) {
                         popUpTo(Screen.Register.route) { inclusive = false }
                     }
+                }
+            )
+        }
+        composable("onboard") {
+            OnboardScreen(
+                onStartClick = {
+                    // здесь потом перейдёшь, например, на sign_in
+                    // navController.navigate("sign_in")
                 }
             )
         }
