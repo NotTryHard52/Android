@@ -14,6 +14,7 @@ retrofit = "3.0.0"
 room = "2.8.3"
 ksp = "2.0.21-1.0.26"
 navigation = "2.9.5"
+coreSplashscreen = "1.2.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -38,6 +39,7 @@ androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = 
 retrofit = {module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit"}
 gson = {module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit"}
 nagivation = {module = "androidx.navigation:navigation-compose", version.ref = "navigation"}
+androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
