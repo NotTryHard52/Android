@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,6 +38,9 @@ import com.example.chirkov_android.ui.theme.Background
 import com.example.chirkov_android.ui.theme.Block
 import com.example.chirkov_android.ui.theme.SubTextDark
 import com.example.chirkov_android.data.createTempImageUri
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.chirkov_android.ui.viewModel.ProfileState
+import com.example.chirkov_android.ui.viewModel.ProfileViewModel
 
 @Composable
 fun ProfileScreen(
@@ -44,6 +48,7 @@ fun ProfileScreen(
     onFabClick: () -> Unit = {},
     onTabSelected: (Int) -> Unit = {}
 ) {
+
     var activeTab by remember { mutableIntStateOf(3) }
 
     val tabs = remember {
@@ -57,25 +62,29 @@ fun ProfileScreen(
 
     var isEditMode by remember { mutableStateOf(false) }
 
-    var firstName by remember { mutableStateOf("Emmanuel") }
-    var lastName by remember { mutableStateOf("Oyiboke") }
-    var address by remember { mutableStateOf("Nigeria") }
-    var phone by remember { mutableStateOf("+7 811-732-5298") }
+    var firstName by remember { mutableStateOf("") }
+    var lastName by remember { mutableStateOf("") }
+    var address by remember { mutableStateOf("") }
+    var phone by remember { mutableStateOf("") }
 
     // ===== Camera state =====
     val context = LocalContext.current
     var avatarUri by remember { mutableStateOf<Uri?>(null) }
     var pendingCameraUri by remember { mutableStateOf<Uri?>(null) }
+    val vm: ProfileViewModel = viewModel()
+    val profileState by vm.state.collectAsState()
 
     val takePictureLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture(),
         onResult = { success ->
             if (success) {
-                avatarUri = pendingCameraUri
+                val uri = pendingCameraUri
+                avatarUri = uri
+                if (uri != null) vm.saveAvatar(uri)
             }
             pendingCameraUri = null
         }
-    ) // TakePicture -> Boolean [web:281]
+    )
 
     val cameraPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
@@ -88,6 +97,22 @@ fun ProfileScreen(
             // если пользователь запретил — можно показать MessageDialog
         }
     )
+
+    LaunchedEffect(profileState) {
+        val p = (profileState as? ProfileState.Ready)?.profile ?: return@LaunchedEffect
+        firstName = p.firstname.orEmpty()
+        lastName = p.lastname.orEmpty()
+        address = p.address.orEmpty()
+        phone = p.phone.orEmpty()
+    }
+    val fullName by remember(firstName, lastName) {
+        mutableStateOf(
+            listOf(firstName.trim(), lastName.trim())
+                .filter { it.isNotEmpty() }
+                .joinToString(" ")
+                .ifEmpty { "Пользователь" }
+        )
+    }
 
     Box(
         modifier = modifier
@@ -108,7 +133,7 @@ fun ProfileScreen(
                     .padding(top = 18.dp, start = 16.dp, end = 16.dp)
             ) {
                 Text(
-                    text = "Профиль",
+                    text = stringResource(R.string.Profile),
                     modifier = Modifier.fillMaxWidth(),
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Medium,
@@ -135,32 +160,25 @@ fun ProfileScreen(
             Spacer(Modifier.height(18.dp))
 
             // ===== Avatar =====
-            if (avatarUri != null) {
-                AsyncImage(
-                    model = avatarUri,
-                    contentDescription = "Avatar",
-                    modifier = Modifier
-                        .size(96.dp)
-                        .align(Alignment.CenterHorizontally)
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Crop
-                )
-            } else {
-                Image(
-                    painter = painterResource(id = R.drawable.profile_avatar),
-                    contentDescription = "Avatar",
-                    modifier = Modifier
-                        .size(96.dp)
-                        .align(Alignment.CenterHorizontally)
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Crop
-                )
-            }
+            val profile = (profileState as? ProfileState.Ready)?.profile
+
+            val avatarModel: Any = avatarUri ?: (profile?.photo ?: R.drawable.profile_avatar)
+
+            AsyncImage(
+                model = avatarModel,
+                contentDescription = "Avatar",
+                onError = { err -> android.util.Log.e("AvatarUI", "Coil error", err.result.throwable) },
+                modifier = Modifier
+                    .size(96.dp)
+                    .align(Alignment.CenterHorizontally)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
+            )
 
             Spacer(Modifier.height(10.dp))
 
             Text(
-                text = "Emmanuel Oyiboke",
+                text = fullName,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
                 fontSize = 18.sp,
@@ -171,7 +189,7 @@ fun ProfileScreen(
             if (isEditMode) {
                 Spacer(Modifier.height(6.dp))
                 Text(
-                    text = "Изменить фото профиля",
+                    text = stringResource(R.string.PhotoProfile),
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
@@ -212,13 +230,13 @@ fun ProfileScreen(
                 Spacer(Modifier.height(10.dp))
             }
 
-            EditableProfileField("Имя", firstName, isEditMode, isEditMode) { firstName = it }
+            EditableProfileField(stringResource(R.string.NameProfile), firstName, isEditMode, isEditMode) { firstName = it }
             Spacer(Modifier.height(12.dp))
-            EditableProfileField("Фамилия", lastName, isEditMode, isEditMode) { lastName = it }
+            EditableProfileField(stringResource(R.string.Surname), lastName, isEditMode, isEditMode) { lastName = it }
             Spacer(Modifier.height(12.dp))
-            EditableProfileField("Адрес", address, isEditMode, isEditMode) { address = it }
+            EditableProfileField(stringResource(R.string.Address), address, isEditMode, isEditMode) { address = it }
             Spacer(Modifier.height(12.dp))
-            EditableProfileField("Телефон", phone, isEditMode, isEditMode) { phone = it }
+            EditableProfileField(stringResource(R.string.Number), phone, isEditMode, isEditMode) { phone = it }
 
             if (isEditMode) {
                 Spacer(Modifier.height(18.dp))
@@ -229,10 +247,13 @@ fun ProfileScreen(
                         .height(52.dp)
                         .clip(RoundedCornerShape(14.dp))
                         .background(Accent)
-                        .clickable { isEditMode = false },
+                        .clickable {
+                            vm.save(firstName, lastName, address, phone)
+                            isEditMode = false
+                        },
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("Сохранить", fontSize = 14.sp, color = Color.White)
+                    Text(stringResource(R.string.Save), fontSize = 14.sp, color = Color.White)
                 }
             }
 

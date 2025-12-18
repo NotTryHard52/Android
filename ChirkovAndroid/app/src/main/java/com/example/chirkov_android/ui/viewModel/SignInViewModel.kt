@@ -1,9 +1,11 @@
 package com.example.chirkov_android.ui.viewModel
 
+import android.app.Application
 import android.util.Log
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.chirkov_android.data.RetrofitInstance
+import com.example.chirkov_android.data.AuthStore
 import com.example.myfirstapplication.data.module.SignInRequest
 import com.example.myfirstapplication.data.module.User
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,7 +15,9 @@ import java.net.ConnectException
 import java.net.SocketTimeoutException
 import javax.net.ssl.SSLHandshakeException
 
-class SignInViewModel : ViewModel() {
+class SignInViewModel(app: Application) : AndroidViewModel(app) {
+
+    private val authStore = AuthStore(app.applicationContext)
 
     private val _signInState = MutableStateFlow<SignInState>(SignInState.Idle)
     val signInState: StateFlow<SignInState> = _signInState
@@ -69,19 +73,20 @@ class SignInViewModel : ViewModel() {
             else -> "Login failed: $message"
         }
 
-    private fun saveAuthToken(token: String) {
-        // TODO: сохранить в DataStore/Secure storage
+    private suspend fun saveAuthToken(token: String) {
+        authStore.saveAccessToken(token)
         Log.d("Auth", "Access token saved: ${token.take(10)}...")
     }
 
-    private fun saveRefreshToken(token: String) {
-        // TODO: сохранить в DataStore/Secure storage
+    private suspend fun saveRefreshToken(token: String) {
+        authStore.saveRefreshToken(token)
         Log.d("Auth", "Refresh token saved: ${token.take(10)}...")
     }
 
-    private fun saveUserData(user: User) {
-        // TODO: сохранить user
-        Log.d("Auth", "User data saved: ${user.email}")
+    private suspend fun saveUserData(user: User) {
+        // Важно: именно user.id нужен для запросов profiles?user_id=eq.<id>
+        authStore.saveUserId(user.id)
+        Log.d("Auth", "UserId saved: ${user.id}")
     }
 
     fun resetState() {

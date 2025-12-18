@@ -1,5 +1,7 @@
 package com.example.chirkov_android.data
 
+import com.example.chirkov_android.data.service.ProfileService
+import com.example.chirkov_android.data.service.StorageService
 import com.example.chirkov_android.data.service.UserManagmentService
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -19,4 +21,6 @@ object RetrofitInstance {
         .client(client)
         .build()
     val userManagmentService = retrofit.create(UserManagmentService::class.java)
+    val profileService: ProfileService = retrofit.create(ProfileService::class.java)
+    val storageService: StorageService = retrofit.create(StorageService::class.java)
 }
