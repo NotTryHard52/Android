@@ -1,5 +1,9 @@
 package com.example.chirkov_android.ui.view
 
+import android.Manifest
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,12 +21,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.chirkov_android.R
 import com.example.chirkov_android.ui.components.CustomBottomBar
 import com.example.chirkov_android.ui.components.NavTab
@@ -30,6 +36,7 @@ import com.example.chirkov_android.ui.theme.Accent
 import com.example.chirkov_android.ui.theme.Background
 import com.example.chirkov_android.ui.theme.Block
 import com.example.chirkov_android.ui.theme.SubTextDark
+import com.example.chirkov_android.data.createTempImageUri
 
 @Composable
 fun ProfileScreen(
@@ -48,14 +55,39 @@ fun ProfileScreen(
         )
     }
 
-    // режимы
     var isEditMode by remember { mutableStateOf(false) }
 
-    // поля (пока просто локально; потом можно связать с ViewModel)
     var firstName by remember { mutableStateOf("Emmanuel") }
     var lastName by remember { mutableStateOf("Oyiboke") }
     var address by remember { mutableStateOf("Nigeria") }
     var phone by remember { mutableStateOf("+7 811-732-5298") }
+
+    // ===== Camera state =====
+    val context = LocalContext.current
+    var avatarUri by remember { mutableStateOf<Uri?>(null) }
+    var pendingCameraUri by remember { mutableStateOf<Uri?>(null) }
+
+    val takePictureLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture(),
+        onResult = { success ->
+            if (success) {
+                avatarUri = pendingCameraUri
+            }
+            pendingCameraUri = null
+        }
+    ) // TakePicture -> Boolean [web:281]
+
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { granted ->
+            if (granted) {
+                val uri = context.createTempImageUri()
+                pendingCameraUri = uri
+                takePictureLauncher.launch(uri)
+            }
+            // если пользователь запретил — можно показать MessageDialog
+        }
+    )
 
     Box(
         modifier = modifier
@@ -89,9 +121,7 @@ fun ProfileScreen(
                         .size(34.dp)
                         .clip(CircleShape)
                         .background(Accent)
-                        .clickable {
-                            isEditMode = !isEditMode
-                        },
+                        .clickable { isEditMode = !isEditMode },
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
@@ -105,15 +135,27 @@ fun ProfileScreen(
             Spacer(Modifier.height(18.dp))
 
             // ===== Avatar =====
-            Image(
-                painter = painterResource(id = R.drawable.profile_avatar),
-                contentDescription = "Avatar",
-                modifier = Modifier
-                    .size(96.dp)
-                    .align(Alignment.CenterHorizontally)
-                    .clip(CircleShape),
-                contentScale = ContentScale.Crop
-            )
+            if (avatarUri != null) {
+                AsyncImage(
+                    model = avatarUri,
+                    contentDescription = "Avatar",
+                    modifier = Modifier
+                        .size(96.dp)
+                        .align(Alignment.CenterHorizontally)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                Image(
+                    painter = painterResource(id = R.drawable.profile_avatar),
+                    contentDescription = "Avatar",
+                    modifier = Modifier
+                        .size(96.dp)
+                        .align(Alignment.CenterHorizontally)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+            }
 
             Spacer(Modifier.height(10.dp))
 
@@ -130,7 +172,11 @@ fun ProfileScreen(
                 Spacer(Modifier.height(6.dp))
                 Text(
                     text = "Изменить фото профиля",
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+                        },
                     textAlign = TextAlign.Center,
                     fontSize = 12.sp,
                     color = SubTextDark
@@ -139,7 +185,8 @@ fun ProfileScreen(
 
             Spacer(Modifier.height(14.dp))
 
-            // ===== Barcode (только в режиме просмотра) =====
+            // Barcode можешь оставить как было (или скрывать в edit)
+            // Здесь оставлю скрытым в edit, как в твоём предыдущем варианте:
             if (!isEditMode) {
                 Box(
                     modifier = Modifier
@@ -165,46 +212,16 @@ fun ProfileScreen(
                 Spacer(Modifier.height(10.dp))
             }
 
-            // ===== Fields =====
-            EditableProfileField(
-                label = "Имя",
-                value = firstName,
-                enabled = isEditMode,
-                onValueChange = { firstName = it },
-                showCheck = isEditMode
-            )
+            EditableProfileField("Имя", firstName, isEditMode, isEditMode) { firstName = it }
             Spacer(Modifier.height(12.dp))
-
-            EditableProfileField(
-                label = "Фамилия",
-                value = lastName,
-                enabled = isEditMode,
-                onValueChange = { lastName = it },
-                showCheck = isEditMode
-            )
+            EditableProfileField("Фамилия", lastName, isEditMode, isEditMode) { lastName = it }
             Spacer(Modifier.height(12.dp))
-
-            EditableProfileField(
-                label = "Адрес",
-                value = address,
-                enabled = isEditMode,
-                onValueChange = { address = it },
-                showCheck = isEditMode
-            )
+            EditableProfileField("Адрес", address, isEditMode, isEditMode) { address = it }
             Spacer(Modifier.height(12.dp))
+            EditableProfileField("Телефон", phone, isEditMode, isEditMode) { phone = it }
 
-            EditableProfileField(
-                label = "Телефон",
-                value = phone,
-                enabled = isEditMode,
-                onValueChange = { phone = it },
-                showCheck = isEditMode
-            )
-
-            // ===== Save button (только в Edit) =====
             if (isEditMode) {
                 Spacer(Modifier.height(18.dp))
-
                 Box(
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
@@ -212,17 +229,10 @@ fun ProfileScreen(
                         .height(52.dp)
                         .clip(RoundedCornerShape(14.dp))
                         .background(Accent)
-                        .clickable {
-                            // TODO: сохранить (в ViewModel/сервер)
-                            isEditMode = false
-                        },
+                        .clickable { isEditMode = false },
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = "Сохранить",
-                        fontSize = 14.sp,
-                        color = Color.White
-                    )
+                    Text("Сохранить", fontSize = 14.sp, color = Color.White)
                 }
             }
 
@@ -252,11 +262,7 @@ private fun EditableProfileField(
     onValueChange: (String) -> Unit
 ) {
     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-        Text(
-            text = label,
-            fontSize = 14.sp,
-            color = Color.Black
-        )
+        Text(text = label, fontSize = 14.sp, color = Color.Black)
         Spacer(Modifier.height(8.dp))
 
         OutlinedTextField(
@@ -271,7 +277,7 @@ private fun EditableProfileField(
             trailingIcon = {
                 if (showCheck) {
                     Image(
-                        painter = painterResource(id = R.drawable.check), // добавь галочку
+                        painter = painterResource(id = R.drawable.check),
                         contentDescription = "Ok",
                         modifier = Modifier.size(18.dp)
                     )
