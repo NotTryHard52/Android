@@ -1,54 +1,70 @@
 package com.example.chirkov_android.ui.view
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.Image
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.chirkov_android.R
+import com.example.chirkov_android.data.module.toCardData
+import com.example.chirkov_android.data.module.toDomain
 import com.example.chirkov_android.ui.components.ProductCard
 import com.example.chirkov_android.ui.components.ProductCardData
+import com.example.chirkov_android.ui.theme.Accent
 import com.example.chirkov_android.ui.theme.Background
 import com.example.chirkov_android.ui.theme.Block
 import com.example.chirkov_android.ui.theme.SubTextDark
-import com.example.chirkov_android.ui.theme.Accent
+import com.example.chirkov_android.ui.viewModel.CatalogViewModel
 
 @Composable
 fun CatalogScreen(
     modifier: Modifier = Modifier,
+    viewModel: CatalogViewModel = viewModel(),
+    initialCategoryTitle: String = "Все",
     onBackClick: () -> Unit = {},
     onProductClick: (ProductCardData) -> Unit = {}
 ) {
-    var selectedCategory by remember { mutableStateOf(1) } // 0 = Все, 1 = Outdoor, 2 = Tennis
+    val categories by viewModel.categories.collectAsState()
+    val selected by viewModel.selectedIndex.collectAsState()
+    val productsState by viewModel.products.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
 
-    val categories = listOf("Все", "Outdoor", "Tennis")
-
-    val products = remember {
-        // Пока статический список для примера
-        List(8) {
-            ProductCardData(
-                imageRes = R.drawable.nike,
-                label = "BEST SELLER",
-                title = "Nike Air Max",
-                price = "₽752.00"
-            )
-        }
+    LaunchedEffect(initialCategoryTitle) {
+        viewModel.setInitialCategoryTitle(initialCategoryTitle)
     }
+
+    val headerTitle = categories.getOrNull(selected)?.title ?: initialCategoryTitle
+    val cardItems = productsState.map { it.toDomain().toCardData() }
 
     Column(
         modifier = modifier
@@ -79,7 +95,7 @@ fun CatalogScreen(
             }
 
             Text(
-                text = "Outdoor",
+                text = headerTitle,
                 modifier = Modifier
                     .weight(1f)
                     .padding(end = 32.dp),
@@ -91,7 +107,6 @@ fun CatalogScreen(
 
         Spacer(Modifier.height(16.dp))
 
-        // Категории заголовок
         Text(
             text = "Категории",
             fontSize = 16.sp,
@@ -101,26 +116,24 @@ fun CatalogScreen(
 
         Spacer(Modifier.height(12.dp))
 
-        // Category tabs
-        Row(
+        // Tabs из базы (Все + Tennis/Men/Women/Outdoor)
+        LazyRow(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            categories.forEachIndexed { index, title ->
-                val isSelected = index == selectedCategory
+            itemsIndexed(categories) { index, cat ->
+                val isSelected = index == selected
                 Box(
                     modifier = Modifier
-                        .weight(1f)
                         .height(36.dp)
                         .clip(RoundedCornerShape(18.dp))
-                        .background(
-                            if (isSelected) Accent else Block
-                        )
-                        .clickable { selectedCategory = index },
+                        .background(if (isSelected) Accent else Block)
+                        .clickable { viewModel.onCategorySelected(index) }
+                        .padding(horizontal = 18.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = title,
+                        text = cat.title,
                         fontSize = 14.sp,
                         fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
                         color = if (isSelected) Background else SubTextDark
@@ -131,25 +144,33 @@ fun CatalogScreen(
 
         Spacer(Modifier.height(16.dp))
 
-        // Grid с карточками
-        LazyVerticalGrid(
-            modifier = Modifier.fillMaxSize(),
-            columns = GridCells.Fixed(2),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = PaddingValues(bottom = 16.dp, top = 4.dp)
-        ) {
-            items(products) { item ->
-                ProductCard(
-                    data = item,
-                    modifier = Modifier.clickable { onProductClick(item) }
-                )
+        if (isLoading) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = "Загрузка...")
+            }
+        } else {
+            LazyVerticalGrid(
+                modifier = Modifier.fillMaxSize(),
+                columns = GridCells.Fixed(2),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                contentPadding = PaddingValues(bottom = 16.dp, top = 4.dp)
+            ) {
+                items(cardItems) { item ->
+                    ProductCard(
+                        data = item,
+                        modifier = Modifier.clickable { onProductClick(item) }
+                    )
+                }
             }
         }
     }
 }
 
-@Preview()
+@Preview
 @Composable
 private fun CatalogScreenPreview() {
     CatalogScreen()

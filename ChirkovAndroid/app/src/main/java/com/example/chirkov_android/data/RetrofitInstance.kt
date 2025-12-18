@@ -1,7 +1,9 @@
 package com.example.chirkov_android.data
 
+import com.example.chirkov_android.data.service.CatalogService
 import com.example.chirkov_android.data.service.ProfileService
 import com.example.chirkov_android.data.service.StorageService
+import com.example.chirkov_android.data.service.SupabaseApi
 import com.example.chirkov_android.data.service.UserManagmentService
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -23,4 +25,6 @@ object RetrofitInstance {
     val userManagmentService = retrofit.create(UserManagmentService::class.java)
     val profileService: ProfileService = retrofit.create(ProfileService::class.java)
     val storageService: StorageService = retrofit.create(StorageService::class.java)
+    val api: SupabaseApi = retrofit.create(SupabaseApi::class.java)
+    val catalogService: CatalogService = retrofit.create(CatalogService::class.java)
 }

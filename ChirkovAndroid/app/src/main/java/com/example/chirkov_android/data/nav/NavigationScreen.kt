@@ -7,6 +7,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.chirkov_android.ui.view.CatalogScreen
 import com.example.chirkov_android.ui.view.CreateNewPassword
 import com.example.chirkov_android.ui.view.ForgotPassword
 import com.example.chirkov_android.ui.view.HomeScreen
@@ -97,6 +98,9 @@ fun NavigationScreen(navController: NavHostController) {
                             launchSingleTop = true
                         }
                     }
+                },
+                onOpenCatalog = { title ->
+                    navController.navigate(Screen.Catalog.route(title)) { launchSingleTop = true }
                 }
             )
         }
@@ -109,6 +113,22 @@ fun NavigationScreen(navController: NavHostController) {
                         }
                     }
                 }
+            )
+        }
+        composable(
+            route = Screen.Catalog.route,
+            arguments = listOf(
+                navArgument(Screen.Catalog.TITLE_ARG) {
+                    type = NavType.StringType
+                    defaultValue = "Все"
+                }
+            )
+        ) { entry ->
+            val title = entry.arguments?.getString(Screen.Catalog.TITLE_ARG)?.let { android.net.Uri.decode(it) } ?: "Все"
+
+            CatalogScreen(
+                initialCategoryTitle = title,
+                onBackClick = { navController.popBackStack() }
             )
         }
     }

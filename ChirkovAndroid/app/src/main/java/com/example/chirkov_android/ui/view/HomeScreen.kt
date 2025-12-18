@@ -3,30 +3,20 @@ package com.example.chirkov_android.ui.view
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -44,6 +34,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.chirkov_android.R
 import com.example.chirkov_android.ui.components.CustomBottomBar
 import com.example.chirkov_android.ui.components.NavTab
@@ -54,14 +45,19 @@ import com.example.chirkov_android.ui.theme.Background
 import com.example.chirkov_android.ui.theme.Block
 import com.example.chirkov_android.ui.theme.ChirkovAndroidTheme
 import com.example.chirkov_android.ui.theme.SubTextDark
+import com.example.chirkov_android.ui.theme.Text
+import com.example.chirkov_android.ui.viewModel.HomeViewModel
 
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
     onFabClick: () -> Unit = {},
-    onTabSelected: (Int) -> Unit = {}
+    onTabSelected: (Int) -> Unit = {},
+    onOpenCatalog: (String) -> Unit = {},
+    viewModel: HomeViewModel = viewModel()
 ) {
     var activeTab by remember { mutableIntStateOf(0) }
+    var query by remember { mutableStateOf("") }
 
     val tabs = remember {
         listOf(
@@ -72,26 +68,16 @@ fun HomeScreen(
         )
     }
 
-    val categories = remember { listOf("Все", "Outdoor", "Tennis") }
-    var selectedCategory by remember { mutableIntStateOf(0) }
-    var query by remember { mutableStateOf("") }
-
     val popularProducts = remember {
         listOf(
-            ProductCardData(
-                imageRes = R.drawable.nike,
-                label = "BEST SELLER",
-                title = "Nike Air Max",
-                price = "₽752.00"
-            ),
-            ProductCardData(
-                imageRes = R.drawable.nike,
-                label = "BEST SELLER",
-                title = "Nike Air Max",
-                price = "₽752.00"
-            )
+            ProductCardData(R.drawable.nike, "BEST SELLER", "Nike Air Max", "₽752.00"),
+            ProductCardData(R.drawable.nike, "BEST SELLER", "Nike Air Max", "₽752.00")
         )
     }
+
+    val categories by viewModel.categories.collectAsState()
+    val selectedCategory by viewModel.selectedIndex.collectAsState()
+    val isLoadingCategories by viewModel.isLoading.collectAsState()
 
     Box(
         modifier = modifier
@@ -104,7 +90,7 @@ fun HomeScreen(
                 .statusBarsPadding()
                 .padding(bottom = 90.dp)
         ) {
-            // ===== Header =====
+            // Header
             Text(
                 text = stringResource(R.string.Home),
                 modifier = Modifier
@@ -116,7 +102,7 @@ fun HomeScreen(
 
             Spacer(Modifier.height(24.dp))
 
-            // ===== Search + Filter =====
+            // Search + Filter (как у тебя, без изменений)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -127,7 +113,13 @@ fun HomeScreen(
                     value = query,
                     onValueChange = { query = it },
                     modifier = Modifier.weight(1f),
-                    placeholder = { Text(stringResource(R.string.Search), color = SubTextDark, fontSize = 12.sp)},
+                    placeholder = {
+                        Text(
+                            stringResource(R.string.Search),
+                            color = SubTextDark,
+                            fontSize = 12.sp
+                        )
+                    },
                     singleLine = true,
                     shape = RoundedCornerShape(16.dp),
                     colors = TextFieldDefaults.colors(
@@ -155,7 +147,6 @@ fun HomeScreen(
                         .clickable { /* TODO filter */ },
                     contentAlignment = Alignment.Center
                 ) {
-                    // Поставь свою иконку фильтра
                     Image(
                         painter = painterResource(id = R.drawable.filter),
                         contentDescription = "Filter",
@@ -166,7 +157,6 @@ fun HomeScreen(
 
             Spacer(Modifier.height(16.dp))
 
-            // ===== Categories =====
             Text(
                 text = stringResource(R.string.Category),
                 modifier = Modifier.padding(start = 16.dp),
@@ -175,23 +165,46 @@ fun HomeScreen(
 
             Spacer(Modifier.height(10.dp))
 
-            LazyRow(
-                modifier = Modifier.fillMaxWidth(),
-                contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                items(categories.indices.toList()) { idx ->
-                    CategoryChip(
-                        text = categories[idx],
-                        selected = selectedCategory == idx,
-                        onClick = { selectedCategory = idx }
-                    )
+            if (isLoadingCategories) {
+                Text(
+                    text = "Загрузка категорий...",
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    fontSize = 12.sp,
+                    color = SubTextDark
+                )
+            } else {
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = PaddingValues(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    itemsIndexed(categories) { index, cat ->
+                        val isSelected = index == selectedCategory
+
+                        Box(
+                            modifier = Modifier
+                                .height(40.dp)
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(Block)
+                                .clickable {
+                                    viewModel.selectCategory(index)
+                                    onOpenCatalog(cat.title)
+                                }
+                                .padding(horizontal = 18.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = cat.title,
+                                fontSize = 12.sp,
+                                color = Text
+                            )
+                        }
+                    }
                 }
             }
-
+            
             Spacer(Modifier.height(18.dp))
 
-            // ===== Popular header =====
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -200,7 +213,7 @@ fun HomeScreen(
             ) {
                 Text(
                     text = stringResource(R.string.Popular),
-                    fontSize = 16.sp,
+                    fontSize = 16.sp
                 )
                 Spacer(Modifier.weight(1f))
                 Text(
@@ -213,12 +226,11 @@ fun HomeScreen(
 
             Spacer(Modifier.height(12.dp))
 
-            // ===== Popular grid (2 columns) =====
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(210.dp) // как на макете: небольшой блок с 2 карточками
+                    .height(210.dp)
                     .padding(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -234,7 +246,6 @@ fun HomeScreen(
 
             Spacer(Modifier.height(18.dp))
 
-            // ===== Promo header =====
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -243,7 +254,7 @@ fun HomeScreen(
             ) {
                 Text(
                     text = stringResource(R.string.Акции),
-                    fontSize = 16.sp,
+                    fontSize = 16.sp
                 )
                 Spacer(Modifier.weight(1f))
                 Text(
@@ -256,9 +267,8 @@ fun HomeScreen(
 
             Spacer(Modifier.height(12.dp))
 
-            // ===== Promo banner (one image) =====
             Image(
-                painter = painterResource(id = R.drawable.promo), // поставь свой баннер
+                painter = painterResource(id = R.drawable.promo),
                 contentDescription = "Promo",
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
@@ -269,7 +279,6 @@ fun HomeScreen(
             )
         }
 
-        // ===== Bottom bar (your component) =====
         CustomBottomBar(
             tabs = tabs,
             fabIcon = R.drawable.shop,
