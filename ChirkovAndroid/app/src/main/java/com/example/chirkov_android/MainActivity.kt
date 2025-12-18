@@ -16,9 +16,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
+import com.example.chirkov_android.nav.NavigationScreen
 import com.example.chirkov_android.ui.theme.ChirkovAndroidTheme
 import com.example.chirkov_android.ui.view.RegisterAccount
-import com.example.myfirstapplication.nav.NavigationScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,15 +26,20 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            val navController = rememberNavController()
             ChirkovAndroidTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = Color.White
                 ) {
-                    NavigationScreen(navController = navController)
+                    AppNav()
                 }
             }
         }
     }
+}
+
+@Composable
+private fun AppNav() {
+    val navController = rememberNavController()
+    NavigationScreen(navController = navController)
 }

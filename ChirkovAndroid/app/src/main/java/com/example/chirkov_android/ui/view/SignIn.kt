@@ -28,7 +28,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -36,46 +35,56 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.androidpracapp.ui.components.MessageDialog
 import com.example.chirkov_android.R
 import com.example.chirkov_android.ui.components.ActiveButton
-import com.example.chirkov_android.ui.components.CircularDot
-import com.example.chirkov_android.ui.components.DisabledButton
-import com.example.chirkov_android.ui.theme.Accent
 import com.example.chirkov_android.ui.theme.Background
-import com.example.chirkov_android.ui.theme.Hint
 import com.example.chirkov_android.ui.theme.SubTextDark
 import com.example.chirkov_android.ui.viewModel.SignInState
 import com.example.chirkov_android.ui.viewModel.SignInViewModel
-import com.example.myfirstapplication.ui.viewModel.SignUpState
 
 @Composable
-fun SignIn(onRegisterClick: () -> Unit = {}, onForgotPasswordClick: () -> Unit = {},  modifier: Modifier = Modifier) {
+fun SignIn(
+    onRegisterClick: () -> Unit = {},
+    onForgotPasswordClick: () -> Unit = {},
+    onSuccessNavigate: () -> Unit = {},
+    modifier: Modifier = Modifier,
+    vm: SignInViewModel = viewModel()
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+
     var showEmailError by remember { mutableStateOf(false) }
     var showEmptyFieldsError by remember { mutableStateOf(false) }
 
-    fun isEmailValid(email: String): Boolean {
+    val signInState by vm.signInState.collectAsState()
+
+    fun isEmailValid(v: String): Boolean {
         val regex = Regex("""^[a-z0-9]+@[a-z0-9]+\.[a-z]{2,}$""")
-        return regex.matches(email.trim().lowercase())
+        return regex.matches(v.trim().lowercase())
     }
 
-    fun areFieldsEmpty(): Boolean {
-        return email.trim().isEmpty() || password.trim().isEmpty()
+    fun areFieldsEmpty(): Boolean = email.trim().isEmpty() || password.trim().isEmpty()
+
+    LaunchedEffect(signInState) {
+        if (signInState is SignInState.Success) {
+            onSuccessNavigate()
+            vm.resetState()
+        }
     }
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(20.dp),
         verticalArrangement = Arrangement.Top
     ) {
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -95,10 +104,7 @@ fun SignIn(onRegisterClick: () -> Unit = {}, onForgotPasswordClick: () -> Unit =
                 .padding(top = 11.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = stringResource(R.string.Hi),
-                fontSize = 32.sp
-            )
+            Text(text = stringResource(R.string.Hi), fontSize = 32.sp)
             Text(
                 text = stringResource(R.string.Data),
                 modifier = Modifier.padding(top = 4.dp, bottom = 8.dp),
@@ -112,7 +118,6 @@ fun SignIn(onRegisterClick: () -> Unit = {}, onForgotPasswordClick: () -> Unit =
 
         Column(modifier = Modifier.fillMaxWidth()) {
 
-            var email by remember { mutableStateOf("") }
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(
                     text = stringResource(R.string.Email),
@@ -134,6 +139,8 @@ fun SignIn(onRegisterClick: () -> Unit = {}, onForgotPasswordClick: () -> Unit =
                 )
             }
 
+            Spacer(modifier = Modifier.height(18.dp))
+
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(
                     text = stringResource(R.string.Password),
@@ -144,10 +151,7 @@ fun SignIn(onRegisterClick: () -> Unit = {}, onForgotPasswordClick: () -> Unit =
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
-                    visualTransformation = if (passwordVisible)
-                        VisualTransformation.None
-                    else
-                        PasswordVisualTransformation(),
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(14.dp),
                     colors = TextFieldDefaults.colors(
@@ -168,6 +172,7 @@ fun SignIn(onRegisterClick: () -> Unit = {}, onForgotPasswordClick: () -> Unit =
                         }
                     }
                 )
+
                 Text(
                     text = stringResource(R.string.Restore),
                     modifier = Modifier
@@ -182,26 +187,28 @@ fun SignIn(onRegisterClick: () -> Unit = {}, onForgotPasswordClick: () -> Unit =
             }
 
             Spacer(modifier = Modifier.height(24.dp))
+
+            val isLoading = signInState is SignInState.Loading
+
             ActiveButton(
                 onClick = {
                     if (areFieldsEmpty()) {
                         showEmptyFieldsError = true
                         return@ActiveButton
                     }
-
                     if (!isEmailValid(email)) {
                         showEmailError = true
                         return@ActiveButton
                     }
-
-                    // TODO: логика входа
+                    vm.signIn(email = email, password = password)
                 },
-                text = stringResource(R.string.SignIn),
+                text = if (isLoading) "Вход..." else stringResource(R.string.SignIn),
                 modifier = Modifier.fillMaxWidth()
             )
         }
 
         Spacer(modifier = Modifier.weight(1f))
+
         Row(
             modifier = Modifier
                 .padding(bottom = 47.dp)
@@ -226,6 +233,15 @@ fun SignIn(onRegisterClick: () -> Unit = {}, onForgotPasswordClick: () -> Unit =
             )
         }
     }
+
+    if (signInState is SignInState.Error) {
+        MessageDialog(
+            title = "Ошибка входа",
+            description = (signInState as SignInState.Error).message,
+            onOk = { vm.resetState() }
+        )
+    }
+
     if (showEmptyFieldsError) {
         MessageDialog(
             title = "Поля не заполнены",

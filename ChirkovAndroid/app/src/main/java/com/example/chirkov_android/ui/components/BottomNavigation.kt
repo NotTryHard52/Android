@@ -81,7 +81,7 @@ fun CustomBottomBar(
                 }
             }
         }
-        
+
         FabCircle(
             iconRes = fabIcon,
             onClick = onFabClick,

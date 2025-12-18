@@ -12,34 +12,39 @@ import kotlinx.coroutines.launch
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import javax.net.ssl.SSLHandshakeException
-import kotlin.let
-import kotlin.text.take
 
 class SignInViewModel : ViewModel() {
+
     private val _signInState = MutableStateFlow<SignInState>(SignInState.Idle)
     val signInState: StateFlow<SignInState> = _signInState
 
     fun signIn(email: String, password: String) {
         viewModelScope.launch {
+            _signInState.value = SignInState.Loading
             try {
                 val response = RetrofitInstance.userManagmentService.signIn(
-                    SignInRequest(email, password)
+                    SignInRequest(email = email, password = password)
                 )
 
                 if (response.isSuccessful) {
-                    response.body()?.let { signInResponse ->
-                        // Сохраняем токен
-                        saveAuthToken(signInResponse.access_token)
-                        saveRefreshToken(signInResponse.refresh_token)
-                        saveUserData(signInResponse.user)
+                    val body = response.body()
+                    if (body != null) {
+                        saveAuthToken(body.access_token)
+                        saveRefreshToken(body.refresh_token)
+                        saveUserData(body.user)
 
-                        Log.v("signIn", "User authenticated: ${signInResponse.user.email}")
+                        Log.v("signIn", "User authenticated: ${body.user.email}")
                         _signInState.value = SignInState.Success
+                    } else {
+                        _signInState.value = SignInState.Error("Пустой ответ сервера")
                     }
                 } else {
                     val errorMessage = parseSignInError(response.code(), response.message())
                     _signInState.value = SignInState.Error(errorMessage)
-                    Log.e("signIn", "Error code: ${response.code()}, message: ${response.message()}, body: ${response.errorBody()?.string()}")
+                    Log.e(
+                        "signIn",
+                        "Error code: ${response.code()}, message: ${response.message()}, body: ${response.errorBody()?.string()}"
+                    )
                 }
             } catch (e: Exception) {
                 val errorMessage = when (e) {
@@ -54,8 +59,8 @@ class SignInViewModel : ViewModel() {
         }
     }
 
-    private fun parseSignInError(code: Int, message: String): String {
-        return when (code) {
+    private fun parseSignInError(code: Int, message: String): String =
+        when (code) {
             400 -> "Неверный логин или пароль"
             401 -> "Invalid login credentials"
             422 -> "Неверный формат почты"
@@ -63,20 +68,19 @@ class SignInViewModel : ViewModel() {
             500 -> "Server error. Please try again later."
             else -> "Login failed: $message"
         }
-    }
 
     private fun saveAuthToken(token: String) {
-        // TODO: Сохранить токен в SecurePreferences
+        // TODO: сохранить в DataStore/Secure storage
         Log.d("Auth", "Access token saved: ${token.take(10)}...")
     }
 
     private fun saveRefreshToken(token: String) {
-        // TODO: Сохранить refresh токен
+        // TODO: сохранить в DataStore/Secure storage
         Log.d("Auth", "Refresh token saved: ${token.take(10)}...")
     }
 
     private fun saveUserData(user: User) {
-        // TODO: Сохранить данные пользователя
+        // TODO: сохранить user
         Log.d("Auth", "User data saved: ${user.email}")
     }
 
@@ -86,7 +90,8 @@ class SignInViewModel : ViewModel() {
 }
 
 sealed class SignInState {
-    object Idle : SignInState()
-    object Success : SignInState()
+    data object Idle : SignInState()
+    data object Loading : SignInState()
+    data object Success : SignInState()
     data class Error(val message: String) : SignInState()
 }

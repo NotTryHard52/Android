@@ -1,11 +1,15 @@
-package com.example.myfirstapplication.nav
+package com.example.chirkov_android.nav
 
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.example.chirkov_android.ui.view.CreateNewPassword
 import com.example.chirkov_android.ui.view.ForgotPassword
+import com.example.chirkov_android.ui.view.HomeScreen
 import com.example.chirkov_android.ui.view.OnboardScreen
 import com.example.chirkov_android.ui.view.RegisterAccount
 import com.example.chirkov_android.ui.view.SignIn
@@ -16,66 +20,78 @@ import com.example.chirkov_android.ui.view.Verification
 fun NavigationScreen(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = "onboard"
+        startDestination = Screen.Onboard.route
     ) {
-        // Регистрация
+        composable(Screen.Onboard.route) {
+            OnboardScreen(
+                onStartClick = {
+                    navController.navigate(Screen.Register.route) {
+                        popUpTo(Screen.Onboard.route) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+
         composable(Screen.Register.route) {
             RegisterAccount(
                 onSignInClick = { navController.navigate(Screen.SignIn.route) },
-                onOtpClick = { email ->
-                    navController.navigate(Screen.OtpVerification.route(email))
-                }
+                onOtpClick = { email -> navController.navigate(Screen.OtpVerification.route(email)) }
             )
         }
 
-        // Вход
         composable(Screen.SignIn.route) {
             SignIn(
                 onRegisterClick = { navController.navigate(Screen.Register.route) },
-                onForgotPasswordClick = { navController.navigate(Screen.ForgotPassword.route) }
-            )
-        }
-
-        // Забыл пароль
-        composable(Screen.ForgotPassword.route) {
-            ForgotPassword(
-                onBackClick = { navController.popBackStack() },
-                onOtpClick = { email ->
-                    navController.navigate(Screen.OtpVerification.route(email))
+                onForgotPasswordClick = { navController.navigate(Screen.ForgotPassword.route) },
+                onSuccessNavigate = {
+                    navController.navigate(Screen.Home.route) {
+                        // очищаем весь auth-флоу до старта графа [web:101]
+                        popUpTo(navController.graph.findStartDestination().id) { inclusive = true }
+                        launchSingleTop = true
+                    }
                 }
             )
         }
 
-        // Ввод кода (OTP)
-        composable(Screen.OtpVerification.route) { backStackEntry ->
-            val email = backStackEntry.arguments?.getString("email") ?: ""
+        composable(Screen.ForgotPassword.route) {
+            ForgotPassword(
+                onBackClick = { navController.popBackStack() },
+                onOtpClick = { email -> navController.navigate(Screen.OtpVerification.route(email)) }
+            )
+        }
+
+        composable(
+            route = Screen.OtpVerification.route,
+            arguments = listOf(
+                navArgument(Screen.OtpVerification.EMAIL_ARG) { type = NavType.StringType }
+            )
+        ) { entry ->
+            val email = entry.arguments?.getString(Screen.OtpVerification.EMAIL_ARG).orEmpty()
 
             Verification(
                 email = email,
                 onBackClick = { navController.popBackStack() },
-                onSuccess = {
-                    navController.navigate(Screen.CreateNewPassword.route)
-                }
+                onSuccess = { navController.navigate(Screen.CreateNewPassword.route) }
             )
         }
 
-        // Новый пароль
         composable(Screen.CreateNewPassword.route) {
             CreateNewPassword(
                 onBackClick = { navController.popBackStack() },
                 onNavigateToSignIn = {
                     navController.navigate(Screen.SignIn.route) {
-                        popUpTo(Screen.Register.route) { inclusive = false }
+                        popUpTo(Screen.Register.route) { inclusive = true }
+                        launchSingleTop = true
                     }
                 }
             )
         }
-        composable("onboard") {
-            OnboardScreen(
-                onStartClick = {
-                    // здесь потом перейдёшь, например, на sign_in
-                    // navController.navigate("sign_in")
-                }
+
+        composable(Screen.Home.route) {
+            HomeScreen(
+                onFabClick = { /* например, корзина */ },
+                onTabSelected = { /* переключение вкладок */ }
             )
         }
     }
