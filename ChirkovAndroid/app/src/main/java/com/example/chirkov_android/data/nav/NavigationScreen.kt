@@ -11,6 +11,7 @@ import com.example.chirkov_android.ui.view.CreateNewPassword
 import com.example.chirkov_android.ui.view.ForgotPassword
 import com.example.chirkov_android.ui.view.HomeScreen
 import com.example.chirkov_android.ui.view.OnboardScreen
+import com.example.chirkov_android.ui.view.ProfileScreen
 import com.example.chirkov_android.ui.view.RegisterAccount
 import com.example.chirkov_android.ui.view.SignIn
 import com.example.chirkov_android.ui.view.Verification
@@ -90,8 +91,24 @@ fun NavigationScreen(navController: NavHostController) {
 
         composable(Screen.Home.route) {
             HomeScreen(
-                onFabClick = { /* например, корзина */ },
-                onTabSelected = { /* переключение вкладок */ }
+                onTabSelected = { tabIndex ->
+                    if (tabIndex == 3) { // 3 = Profile
+                        navController.navigate(Screen.Profile.route) {
+                            launchSingleTop = true
+                        }
+                    }
+                }
+            )
+        }
+        composable(Screen.Profile.route) {
+            ProfileScreen(
+                onTabSelected = { tabIndex ->
+                    if (tabIndex == 0) { // 0 = Home
+                        navController.navigate(Screen.Home.route) {
+                            launchSingleTop = true
+                        }
+                    }
+                }
             )
         }
     }
