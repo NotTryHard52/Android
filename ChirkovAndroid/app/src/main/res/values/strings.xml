@@ -3,10 +3,10 @@
     <string name="Welcome">Добро\nпожаловать</string>
     <string name="Journey">Начнем путешествие</string>
     <string name="Description">Умная, великолепная и модная коллекция Изучите сейчас</string>
-    <string name="Strength">У вас есть сила, чтобы</string>
+    <string name="Strength">У Вас Есть Сила, Чтобы</string>
     <string name="Room">В вашей комнате много красивых и привлекательных растений</string>
     <string name="Hi">Привет!</string>
-    <string name="Data">Заполните Свои данные</string>
+    <string name="Data">Заполните Свои Данные</string>
     <string name="Email">Email</string>
     <string name="Password">Пароль</string>
     <string name="Start">Начать</string>
@@ -27,7 +27,7 @@
     <string name="OTP">OTP проверка</string>
     <string name="OTPEmail">Пожалуйста, проверьте свою электронную почту, чтобы увидеть код подтверждения</string>
     <string name="OTPCode">OTP Код</string>
-    <string name="NewPasswoes">Задать новый пароль</string>
+    <string name="NewPasswoes">Задать Новый Пароль</string>
     <string name="NextPassword">Установите новый пароль для входа в вашу учетную запись</string>
     <string name="VerifyPassword">Подтверждение пароля</string>
     <string name="Home">Главная</string>

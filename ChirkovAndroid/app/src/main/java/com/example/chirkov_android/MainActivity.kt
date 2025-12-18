@@ -17,7 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
 import com.example.chirkov_android.nav.NavigationScreen
-import com.example.chirkov_android.ui.theme.ChirkovAndroidTheme
+import com.example.chirkov_android.ui.theme.ShoeStoreTheme
 import com.example.chirkov_android.ui.view.RegisterAccount
 
 class MainActivity : ComponentActivity() {
@@ -26,7 +26,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            ChirkovAndroidTheme {
+            ShoeStoreTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = Color.White

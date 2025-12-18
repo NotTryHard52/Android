@@ -43,7 +43,7 @@ import com.example.chirkov_android.ui.components.ProductCardData
 import com.example.chirkov_android.ui.theme.Accent
 import com.example.chirkov_android.ui.theme.Background
 import com.example.chirkov_android.ui.theme.Block
-import com.example.chirkov_android.ui.theme.ChirkovAndroidTheme
+import com.example.chirkov_android.ui.theme.CustomTheme
 import com.example.chirkov_android.ui.theme.SubTextDark
 import com.example.chirkov_android.ui.theme.Text
 import com.example.chirkov_android.ui.viewModel.HomeViewModel
@@ -96,7 +96,8 @@ fun HomeScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 18.dp),
-                fontSize = 32.sp,
+                style = CustomTheme.typography.HeadingRegular32,
+                color = CustomTheme.colors.text,
                 textAlign = TextAlign.Center
             )
 
@@ -116,8 +117,8 @@ fun HomeScreen(
                     placeholder = {
                         Text(
                             stringResource(R.string.Search),
-                            color = SubTextDark,
-                            fontSize = 12.sp
+                            style = CustomTheme.typography.BodyRegular12,
+                            color = CustomTheme.colors.hint,
                         )
                     },
                     singleLine = true,
@@ -160,7 +161,8 @@ fun HomeScreen(
             Text(
                 text = stringResource(R.string.Category),
                 modifier = Modifier.padding(start = 16.dp),
-                fontSize = 16.sp
+                style = CustomTheme.typography.BodyMedium16,
+                color = CustomTheme.colors.text,
             )
 
             Spacer(Modifier.height(10.dp))
@@ -202,7 +204,7 @@ fun HomeScreen(
                     }
                 }
             }
-            
+
             Spacer(Modifier.height(18.dp))
 
             Row(
@@ -213,13 +215,14 @@ fun HomeScreen(
             ) {
                 Text(
                     text = stringResource(R.string.Popular),
-                    fontSize = 16.sp
+                    style = CustomTheme.typography.BodyMedium16,
+                    color = CustomTheme.colors.text
                 )
                 Spacer(Modifier.weight(1f))
                 Text(
                     text = stringResource(R.string.All),
-                    fontSize = 12.sp,
-                    color = Accent,
+                    style = CustomTheme.typography.BodyRegular12,
+                    color = CustomTheme.colors.accent,
                     modifier = Modifier.clickable { /* TODO */ }
                 )
             }
@@ -254,13 +257,14 @@ fun HomeScreen(
             ) {
                 Text(
                     text = stringResource(R.string.Акции),
-                    fontSize = 16.sp
+                    style = CustomTheme.typography.BodyMedium16,
+                    color = CustomTheme.colors.text
                 )
                 Spacer(Modifier.weight(1f))
                 Text(
                     text = stringResource(R.string.All),
-                    fontSize = 12.sp,
-                    color = Accent,
+                    style = CustomTheme.typography.BodyRegular12,
+                    color = CustomTheme.colors.accent,
                     modifier = Modifier.clickable { /* TODO */ }
                 )
             }

@@ -32,6 +32,8 @@ import com.example.chirkov_android.ui.components.WhiteButton
 import com.example.chirkov_android.data.module.OnboardPage
 import com.example.chirkov_android.ui.theme.Accent
 import com.example.chirkov_android.ui.theme.Block
+import com.example.chirkov_android.ui.theme.CustomTheme
+import com.example.chirkov_android.ui.theme.Raleway
 import com.example.chirkov_android.ui.theme.SubTextDark
 import kotlinx.coroutines.launch
 
@@ -78,8 +80,8 @@ fun OnboardScreen(
                     // ===== 1 СЛАЙД =====
                     AnimatedVisibility(
                         visible = pagerState.currentPage == page,
-                        enter = fadeIn(animationSpec = tween(500)),
-                        exit = fadeOut(animationSpec = tween(500))
+                        enter = fadeIn(animationSpec = tween(300)),
+                        exit = fadeOut(animationSpec = tween(300))
                     ) {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
@@ -89,9 +91,10 @@ fun OnboardScreen(
 
                             Text(
                                 text = stringResource(item.title),
+                                style = CustomTheme.typography.HeadingBold30,
+                                color = CustomTheme.colors.block,
                                 fontSize = 30.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Block,
                                 textAlign = TextAlign.Center
                             )
 
@@ -113,8 +116,8 @@ fun OnboardScreen(
                     // ===== 2–3 СЛАЙД =====
                     AnimatedVisibility(
                         visible = pagerState.currentPage == page,
-                        enter = fadeIn(animationSpec = tween(500)),
-                        exit = fadeOut(animationSpec = tween(500))
+                        enter = fadeIn(animationSpec = tween(300)),
+                        exit = fadeOut(animationSpec = tween(300))
                     ) {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
@@ -140,16 +143,16 @@ fun OnboardScreen(
                             ) {
                                 Text(
                                     text = stringResource(item.title),
-                                    fontSize = 34.sp,
-                                    color = Block,
+                                    style = CustomTheme.typography.HeadingRegular32,
+                                    color = CustomTheme.colors.block,
                                     textAlign = TextAlign.Center
                                 )
 
                                 item.description?.let {
                                     Text(
                                         text = stringResource(it),
-                                        fontSize = 16.sp,
-                                        color = SubTextDark,
+                                        style = CustomTheme.typography.BodyRegular16,
+                                        color = CustomTheme.colors.subTextDark,
                                         textAlign = TextAlign.Center
                                     )
                                 }

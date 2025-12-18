@@ -3,9 +3,11 @@ package com.example.chirkov_android.ui.view
 import android.graphics.drawable.Icon
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -31,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
@@ -54,6 +58,9 @@ import com.example.chirkov_android.R
 import com.example.chirkov_android.data.module.SignUpRequest
 import com.example.chirkov_android.ui.components.ActiveButton
 import com.example.chirkov_android.ui.theme.Accent
+import com.example.chirkov_android.ui.theme.Block
+import com.example.chirkov_android.ui.theme.CustomTheme
+import com.example.chirkov_android.ui.theme.Raleway
 import com.example.myfirstapplication.ui.viewModel.SignUpState
 import com.example.myfirstapplication.ui.viewModel.SignUpViewModel
 
@@ -103,20 +110,23 @@ fun RegisterAccount(onSignInClick: () -> Unit = {}, onOtpClick: (String) -> Unit
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(20.dp),
+            .padding(20.dp)
+            .statusBarsPadding(),
         verticalArrangement = Arrangement.Top
     ) {
         // Иконка назад
-        Row(
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 67.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .size(32.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(Background)
+                .clickable {  },
+            contentAlignment = Alignment.Center
         ) {
             Image(
                 painter = painterResource(id = R.drawable.icon_back),
-                contentDescription = null,
-                modifier = Modifier.size(44.dp)
+                contentDescription = "Back",
+                modifier = Modifier.size(16.dp)
             )
         }
 
@@ -129,14 +139,14 @@ fun RegisterAccount(onSignInClick: () -> Unit = {}, onOtpClick: (String) -> Unit
         ) {
             Text(
                 text = stringResource(R.string.Registry),
-                fontSize = 32.sp
+                style = CustomTheme.typography.HeadingRegular32,
+                color = CustomTheme.colors.text
             )
             Text(
                 text = stringResource(R.string.Data),
                 modifier = Modifier.padding(top = 4.dp, bottom = 8.dp),
-                fontSize = 14.sp,
-                lineHeight = 16.sp,
-                color = SubTextDark
+                style = CustomTheme.typography.BodyRegular16,
+                color = CustomTheme.colors.subTextDark
             )
         }
 
@@ -148,9 +158,8 @@ fun RegisterAccount(onSignInClick: () -> Unit = {}, onOtpClick: (String) -> Unit
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(
                     text = stringResource(R.string.Name),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    lineHeight = 20.sp
+                    style = CustomTheme.typography.BodyMedium16,
+                    color = CustomTheme.colors.text
                 )
                 OutlinedTextField(
                     value = name,
@@ -166,12 +175,14 @@ fun RegisterAccount(onSignInClick: () -> Unit = {}, onOtpClick: (String) -> Unit
                 )
             }
 
+            Spacer(modifier = Modifier.height(12.dp))
+
             // Поле Email
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(
                     text = stringResource(R.string.Email),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
+                    style = CustomTheme.typography.BodyMedium16,
+                    color = CustomTheme.colors.text,
                     lineHeight = 20.sp
                 )
                 OutlinedTextField(
@@ -188,12 +199,14 @@ fun RegisterAccount(onSignInClick: () -> Unit = {}, onOtpClick: (String) -> Unit
                 )
             }
 
+            Spacer(modifier = Modifier.height(12.dp))
+
             // Поле Password + чекбокс
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(
                     text = stringResource(R.string.Password),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
+                    style = CustomTheme.typography.BodyMedium16,
+                    color = CustomTheme.colors.text,
                     lineHeight = 20.sp
                 )
                 OutlinedTextField(
@@ -202,7 +215,7 @@ fun RegisterAccount(onSignInClick: () -> Unit = {}, onOtpClick: (String) -> Unit
                     visualTransformation = if (passwordVisible)
                         VisualTransformation.None
                     else
-                        PasswordVisualTransformation(), // ✅ меняется видимость
+                        PasswordVisualTransformation(),
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(14.dp),
                     colors = TextFieldDefaults.colors(
@@ -232,9 +245,8 @@ fun RegisterAccount(onSignInClick: () -> Unit = {}, onOtpClick: (String) -> Unit
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
                         text = stringResource(R.string.PersonalData),
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Normal,
-                        color = Hint,
+                        style = CustomTheme.typography.BodyRegular16,
+                        color = CustomTheme.colors.hint,
                         textDecoration = TextDecoration.Underline
                     )
                 }
@@ -273,10 +285,9 @@ fun RegisterAccount(onSignInClick: () -> Unit = {}, onOtpClick: (String) -> Unit
             ) {
                 Text(
                     text = "Есть аккаунт?",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Normal,
+                    style = CustomTheme.typography.BodyRegular16,
+                    color = CustomTheme.colors.subTextDark,
                     lineHeight = 16.sp,
-                    color = SubTextDark
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(

@@ -1,8 +1,10 @@
 package com.example.chirkov_android.ui.view
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
@@ -40,6 +43,7 @@ import com.example.androidpracapp.ui.components.MessageDialog
 import com.example.chirkov_android.R
 import com.example.chirkov_android.ui.components.ActiveButton
 import com.example.chirkov_android.ui.theme.Background
+import com.example.chirkov_android.ui.theme.CustomTheme
 import com.example.chirkov_android.ui.theme.SubTextDark
 import com.example.chirkov_android.ui.viewModel.ForgotPasswordViewModel
 import com.example.chirkov_android.ui.viewModel.ForgotState
@@ -65,7 +69,6 @@ fun ForgotPassword(onBackClick: () -> Unit = {}, onOtpClick: (String) -> Unit = 
                 onOtpClick(email)
             }
             is ForgotState.Error -> {
-                // ✅ Показываем диалог ошибки из ViewModel
             }
             else -> {}
         }
@@ -74,20 +77,22 @@ fun ForgotPassword(onBackClick: () -> Unit = {}, onOtpClick: (String) -> Unit = 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(20.dp),
+            .padding(20.dp)
+            .statusBarsPadding(),
         verticalArrangement = Arrangement.Top
     ) {
-        Row(
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 67.dp)
-                .clickable { onBackClick() },
-            verticalAlignment = Alignment.CenterVertically
+                .size(32.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(Background)
+                .clickable {  },
+            contentAlignment = Alignment.Center
         ) {
             Image(
                 painter = painterResource(id = R.drawable.icon_back),
-                contentDescription = null,
-                modifier = Modifier.size(44.dp)
+                contentDescription = "Back",
+                modifier = Modifier.size(16.dp)
             )
         }
 
@@ -99,14 +104,16 @@ fun ForgotPassword(onBackClick: () -> Unit = {}, onOtpClick: (String) -> Unit = 
         ) {
             Text(
                 text = stringResource(R.string.ForgotPassword),
-                fontSize = 32.sp
+                style = CustomTheme.typography.HeadingRegular32,
+                color = CustomTheme.colors.text
             )
             Text(
                 text = stringResource(R.string.UserRestore),
                 modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
-                fontSize = 16.sp,
+                style = CustomTheme.typography.BodyRegular16,
+                color = CustomTheme.colors.subTextDark,
                 lineHeight = 16.sp,
-                color = SubTextDark
+                textAlign = TextAlign.Center
             )
         }
 
@@ -116,8 +123,8 @@ fun ForgotPassword(onBackClick: () -> Unit = {}, onOtpClick: (String) -> Unit = 
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(
                     text = stringResource(R.string.Email),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
+                    style = CustomTheme.typography.BodyMedium16,
+                    color = CustomTheme.colors.text,
                     lineHeight = 20.sp
                 )
                 OutlinedTextField(

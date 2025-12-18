@@ -20,6 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.chirkov_android.ui.theme.Accent
+import com.example.chirkov_android.ui.theme.CustomTheme
 import com.example.chirkov_android.ui.theme.Disable
 import com.example.chirkov_android.ui.theme.Text
 
@@ -43,7 +44,7 @@ fun BaseButtonContent(
     ) {
         Text(
             text = text,
-            fontSize = 16.sp,
+            style = CustomTheme.typography.BodyRegular14,
             color = textColor,
             textAlign = TextAlign.Center
         )

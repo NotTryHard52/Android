@@ -1,8 +1,10 @@
 package com.example.chirkov_android.ui.view
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -28,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -43,6 +47,8 @@ import com.example.androidpracapp.ui.components.MessageDialog
 import com.example.chirkov_android.R
 import com.example.chirkov_android.ui.components.ActiveButton
 import com.example.chirkov_android.ui.theme.Background
+import com.example.chirkov_android.ui.theme.CustomTheme
+import com.example.chirkov_android.ui.theme.Raleway
 import com.example.chirkov_android.ui.theme.SubTextDark
 import com.example.chirkov_android.ui.viewModel.SignInState
 import com.example.chirkov_android.ui.viewModel.SignInViewModel
@@ -81,20 +87,23 @@ fun SignIn(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(20.dp),
+            .padding(20.dp)
+            .statusBarsPadding(),
         verticalArrangement = Arrangement.Top
     ) {
 
-        Row(
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 67.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .size(32.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(Background)
+                .clickable {  },
+            contentAlignment = Alignment.Center
         ) {
             Image(
                 painter = painterResource(id = R.drawable.icon_back),
-                contentDescription = null,
-                modifier = Modifier.size(44.dp)
+                contentDescription = "Back",
+                modifier = Modifier.size(16.dp)
             )
         }
 
@@ -104,13 +113,15 @@ fun SignIn(
                 .padding(top = 11.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = stringResource(R.string.Hi), fontSize = 32.sp)
+            Text(text = stringResource(R.string.Hi),
+                style = CustomTheme.typography.HeadingRegular32,
+                color = CustomTheme.colors.text)
             Text(
                 text = stringResource(R.string.Data),
                 modifier = Modifier.padding(top = 4.dp, bottom = 8.dp),
-                fontSize = 14.sp,
-                lineHeight = 16.sp,
-                color = SubTextDark
+                style = CustomTheme.typography.BodyRegular16,
+                color = CustomTheme.colors.subTextDark,
+                lineHeight = 16.sp
             )
         }
 
@@ -121,8 +132,8 @@ fun SignIn(
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(
                     text = stringResource(R.string.Email),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
+                    style = CustomTheme.typography.BodyMedium16,
+                    color = CustomTheme.colors.text,
                     lineHeight = 20.sp
                 )
                 OutlinedTextField(
@@ -144,8 +155,8 @@ fun SignIn(
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(
                     text = stringResource(R.string.Password),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
+                    style = CustomTheme.typography.BodyMedium16,
+                    color = CustomTheme.colors.text,
                     lineHeight = 20.sp
                 )
                 OutlinedTextField(
@@ -178,11 +189,10 @@ fun SignIn(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable { onForgotPasswordClick() },
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Normal,
+                    style = CustomTheme.typography.BodyRegular12,
+                    color = CustomTheme.colors.subTextDark,
                     lineHeight = 16.sp,
-                    textAlign = TextAlign.End,
-                    color = SubTextDark
+                    textAlign = TextAlign.End
                 )
             }
 
@@ -202,7 +212,7 @@ fun SignIn(
                     }
                     vm.signIn(email = email, password = password)
                 },
-                text = if (isLoading) "Вход..." else stringResource(R.string.SignIn),
+                text = if (isLoading) "..." else stringResource(R.string.SignIn),
                 modifier = Modifier.fillMaxWidth()
             )
         }
@@ -218,10 +228,9 @@ fun SignIn(
         ) {
             Text(
                 text = "Вы впервые?",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Normal,
-                lineHeight = 16.sp,
-                color = SubTextDark
+                style = CustomTheme.typography.BodyRegular16,
+                color = CustomTheme.colors.subTextDark,
+                lineHeight = 16.sp
             )
             Spacer(modifier = Modifier.width(4.dp))
             Text(

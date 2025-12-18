@@ -57,6 +57,7 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     implementation(libs.nagivation)
     implementation(libs.androidx.core.splashscreen)
+    implementation(libs.androidx.compose.runtime.annotation)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

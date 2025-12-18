@@ -1,8 +1,10 @@
 package com.example.chirkov_android.ui.view
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -24,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -39,6 +43,7 @@ import com.example.chirkov_android.ui.components.OTP
 import com.example.chirkov_android.ui.theme.Background
 import com.example.chirkov_android.ui.theme.SubTextDark
 import com.example.chirkov_android.ui.theme.Accent
+import com.example.chirkov_android.ui.theme.CustomTheme
 import com.example.chirkov_android.ui.viewModel.VerificationViewModel
 
 @Composable
@@ -66,20 +71,22 @@ fun Verification(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(20.dp),
+            .padding(20.dp)
+            .statusBarsPadding(),
         verticalArrangement = Arrangement.Top
     ) {
-        Row(
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 67.dp)
+                .size(32.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(Background)
                 .clickable { onBackClick() },
-            verticalAlignment = Alignment.CenterVertically
+            contentAlignment = Alignment.Center
         ) {
             Image(
                 painter = painterResource(id = R.drawable.icon_back),
-                contentDescription = null,
-                modifier = Modifier.size(44.dp)
+                contentDescription = "Back",
+                modifier = Modifier.size(16.dp)
             )
         }
 
@@ -89,13 +96,15 @@ fun Verification(
                 .padding(top = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = stringResource(R.string.OTP), fontSize = 32.sp)
+            Text(text = stringResource(R.string.OTP),
+                style = CustomTheme.typography.HeadingRegular32,
+                color = CustomTheme.colors.text)
             Text(
                 text = stringResource(R.string.OTPEmail),
                 modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
-                fontSize = 16.sp,
+                style = CustomTheme.typography.BodyRegular16,
+                color = CustomTheme.colors.subTextDark,
                 lineHeight = 24.sp,
-                color = SubTextDark,
                 textAlign = TextAlign.Center
             )
         }
@@ -104,8 +113,8 @@ fun Verification(
 
         Text(
             text = stringResource(R.string.OTPCode),
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Medium,
+            style = CustomTheme.typography.BodyMedium16,
+            color = CustomTheme.colors.subTextDark,
             lineHeight = 20.sp
         )
 
@@ -157,7 +166,6 @@ fun Verification(
                     fontSize = 12.sp,
                     color = Accent,
                     modifier = Modifier.clickable(enabled = !isLoading) {
-                        // здесь дергаешь signUp/переотправку OTP на email
                         secondsLeft = 30
                         canResend = false
                         viewModel.resetError()
@@ -172,5 +180,5 @@ fun Verification(
 @Preview
 @Composable
 private fun VerificationPreview() {
-
+    Verification("...", {})
 }
