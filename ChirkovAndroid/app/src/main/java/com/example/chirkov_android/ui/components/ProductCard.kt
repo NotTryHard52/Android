@@ -1,122 +1,250 @@
 package com.example.chirkov_android.ui.components
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.chirkov_android.R
 import com.example.chirkov_android.ui.theme.Accent
+import com.example.chirkov_android.ui.theme.Background
+import com.example.chirkov_android.ui.theme.Block
 import com.example.chirkov_android.ui.theme.Hint
+import com.example.chirkov_android.ui.theme.Red
+import com.example.chirkov_android.ui.theme.Text
+import com.example.chirkov_android.R
+
+
+data class ProductCardData(
+    val imageRes: Int,
+    val label: String,
+    val title: String,
+    val price: String,
+    val isFavorite: Boolean = false,
+    val isInCart: Boolean = false,
+    val onFavoriteClick: () -> Unit = {},
+    val onAddClick: () -> Unit = {}
+)
 
 @Composable
 fun ProductCard(
-    modifier: Modifier = Modifier,
-    title: String,
-    price: String,
-    isBestSeller: Boolean,
-    imageRes: Int,
-    onFavoriteClick: () -> Unit,
-    onAddClick: () -> Unit
+    data: ProductCardData,
+    modifier: Modifier = Modifier
 ) {
-    Card(
-        modifier = modifier
-            .width(160.dp)
-            .wrapContentHeight(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+    var isFavorite by remember(data.isFavorite) { mutableStateOf(data.isFavorite) }
+    var isInCart by remember(data.isInCart) { mutableStateOf(data.isInCart) }
 
+    Box(
+        modifier = modifier.size(180.dp).shadow(
+            elevation = 4.dp,
+            shape = RoundedCornerShape(12.dp),
+            clip = false
+        ).background(
+            color = Block,
+            shape = RoundedCornerShape(12.dp)
+        )
     ) {
-        Box(modifier = Modifier.padding(12.dp)) {
-
-            // Favorite icon
-            IconButton(
-                onClick = onFavoriteClick,
-                modifier = Modifier
-                    .size(28.dp)
-                    .align(Alignment.TopStart)
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.favorite),
-                    contentDescription = "Favorite",
-                    tint = Color.Unspecified
-                )
-            }
-
+        Column(
+            modifier = Modifier.size(180.dp),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
             Column(
-                modifier = Modifier
-                    .padding(top = 20.dp)
+                modifier = Modifier.padding(start = 10.dp, end = 10.dp).fillMaxWidth().weight(1f)
             ) {
-
-                // Product image
-                Image(
-                    painter = painterResource(id = imageRes),
-                    contentDescription = title,
-                    modifier = Modifier
-                        .height(90.dp)
-                        .fillMaxWidth(),
-                    contentScale = ContentScale.Fit
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                if (isBestSeller) {
-                    Text(
-                        text = "BEST SELLER",
-                        color = Accent,
-                        fontSize = 12.sp,
+                Box(
+                    modifier = Modifier.fillMaxWidth().weight(1f).clip(RoundedCornerShape(8.dp))
+                ) {
+                    Image(
+                        painter = painterResource(id = data.imageRes),
+                        contentDescription = data.title,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Fit
                     )
+
+                    Box(
+                        modifier = Modifier.align(Alignment.TopStart).padding(top = 10.dp).size(28.dp).clip(CircleShape)
+                            .background(
+                                color = Background,
+                                shape = CircleShape
+                            ).clickable {
+                                isFavorite = !isFavorite
+                                data.onFavoriteClick()
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            painter = painterResource(
+                                id = if (isFavorite) {
+                                    R.drawable.favorite_fill
+                                } else {
+                                    R.drawable.favorite
+                                }
+                            ),
+                            contentDescription = "Favorite",
+                            modifier = Modifier.size(14.dp),
+                            tint = if (isFavorite) {
+                                Red
+                            } else {
+                                Text
+                            }
+                        )
+                    }
                 }
 
                 Text(
-                    text = title,
-                    fontSize = 16.sp,
-                    color = Hint
+                    text = data.label,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Accent,
+                    modifier = Modifier.padding(top = 8.dp),
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = data.title,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Hint,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
+
+            Row(
+                modifier = Modifier.height(30.dp).padding(start = 10.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = data.price,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Text,
+                    modifier = Modifier.padding(top = 1.dp),
+                    textAlign = TextAlign.Start
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Box(
+                    modifier = Modifier.fillMaxHeight().size(30.dp).background(
+                        color = Accent,
+                        shape = RoundedCornerShape(
+                            topStart = 12.dp,
+                            bottomStart = 0.dp,
+                            bottomEnd = 12.dp,
+                            topEnd = 0.dp
+                        )
+                    ).clickable {
+                        isInCart = !isInCart
+                        data.onAddClick()
+                    },
+                    contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = price,
-                        fontSize = 14.sp,
+                    Icon(
+                        painter = painterResource(
+                            id = if (isInCart) {
+                                R.drawable.cart
+                            } else {
+                                R.drawable.add
+                            }
+                        ),
+                        contentDescription = if (isInCart) {
+                            "In Cart"
+                        } else {
+                            "Add"
+                        },
+                        modifier = Modifier.size(16.dp),
+                        tint = Color.White
                     )
-
-                    Spacer(modifier = Modifier.weight(1f))
-                    Image( painter = painterResource(id = R.drawable.add), contentDescription = "Add", modifier = Modifier .size(36.dp) .clickable { onAddClick() } )
                 }
             }
         }
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 private fun ProductCardPreview() {
-    ProductCard(
-        title = "Nike Air Max",
-        price = "₱752.00",
-        isBestSeller = true,
-        imageRes = R.drawable.nike,
-        onFavoriteClick = { },
-        onAddClick = { }
-    )
+    Row(
+        modifier = Modifier.background(Background).padding(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            ProductCard(
+                data = ProductCardData(
+                    imageRes = R.drawable.nike,
+                    label = "BEST SELLER",
+                    title = "Nike Air Max",
+                    price = "₽752.00",
+                    isFavorite = false,
+                    isInCart = false
+                )
+            )
+
+            ProductCard(
+                data = ProductCardData(
+                    imageRes = R.drawable.nike,
+                    label = "BEST SELLER",
+                    title = "Nike Air Max",
+                    price = "₽752.00",
+                    isFavorite = false,
+                    isInCart = true
+                )
+            )
+        }
+
+        Column(
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            ProductCard(
+                data = ProductCardData(
+                    imageRes = R.drawable.nike,
+                    label = "BEST SELLER",
+                    title = "Nike Air Max",
+                    price = "₽752.00",
+                    isFavorite = true,
+                    isInCart = false
+                )
+            )
+
+            ProductCard(
+                data = ProductCardData(
+                    imageRes = R.drawable.nike,
+                    label = "BEST SELLER",
+                    title = "Nike Air Max",
+                    price = "₽752.00",
+                    isFavorite = true,
+                    isInCart = true
+                )
+            )
+        }
+    }
 }
