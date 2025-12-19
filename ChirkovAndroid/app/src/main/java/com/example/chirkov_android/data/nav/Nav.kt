@@ -20,4 +20,5 @@ sealed class Screen(val route: String) {
         const val TITLE_ARG = "title"
         fun route(title: String): String = "catalog?title=${android.net.Uri.encode(title)}"
     }
+    object Favorite : Screen("favorite")
 }

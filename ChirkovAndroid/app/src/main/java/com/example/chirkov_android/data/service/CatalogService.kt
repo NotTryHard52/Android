@@ -33,6 +33,16 @@ interface CatalogService {
     @GET("rest/v1/products")
     suspend fun getProductsByCategoryId(
         @Query("select") select: String = "*",
-        @Query("category_id") categoryIdEq: String
+        @Query("category_id") categoryIdEq: String    // "eq.<uuid>"
+    ): List<ProductDto>
+
+    @Headers(
+        "apikey: $API_KEY",
+        "Authorization: Bearer $API_KEY"
+    )
+    @GET("rest/v1/products")
+    suspend fun getProductsByIds(
+        @Query("select") select: String = "*",
+        @Query("id") idIn: String        // "in.(uuid1,uuid2,...)"
     ): List<ProductDto>
 }

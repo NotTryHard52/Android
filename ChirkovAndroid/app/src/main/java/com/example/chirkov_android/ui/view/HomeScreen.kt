@@ -70,8 +70,20 @@ fun HomeScreen(
 
     val popularProducts = remember {
         listOf(
-            ProductCardData(R.drawable.nike, "BEST SELLER", "Nike Air Max", "₽752.00"),
-            ProductCardData(R.drawable.nike, "BEST SELLER", "Nike Air Max", "₽752.00")
+            ProductCardData(
+                id = "1",
+                imageRes = R.drawable.nike,
+                label = "BEST SELLER",
+                title = "Nike Air Max",
+                price = "₽752.00"
+            ),
+            ProductCardData(
+                id = "2",
+                imageRes = R.drawable.nike,
+                label = "BEST SELLER",
+                title = "Nike Air Max",
+                price = "₽752.00"
+            )
         )
     }
 

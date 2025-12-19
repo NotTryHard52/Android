@@ -27,6 +27,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import com.example.chirkov_android.R
 import com.example.chirkov_android.ui.components.WhiteButton
 import com.example.chirkov_android.data.module.OnboardPage
@@ -56,7 +58,17 @@ fun OnboardScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Accent)
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFF48B2E7), // 0%
+                        Color(0xFF44A9DC), // 12.45%
+                        Color(0xFF2B6B8B)  // 100%
+                    ),
+                    startY = 0f,
+                    endY = Float.POSITIVE_INFINITY
+                )
+            )
     ) {
 
         Column(

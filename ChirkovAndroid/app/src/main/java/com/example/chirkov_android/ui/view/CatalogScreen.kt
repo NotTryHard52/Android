@@ -3,17 +3,7 @@ package com.example.chirkov_android.ui.view
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -36,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.chirkov_android.R
+import com.example.chirkov_android.data.AuthStore
 import com.example.chirkov_android.data.module.toCardData
 import com.example.chirkov_android.data.module.toDomain
 import com.example.chirkov_android.ui.components.ProductCard
@@ -45,11 +36,12 @@ import com.example.chirkov_android.ui.theme.Background
 import com.example.chirkov_android.ui.theme.Block
 import com.example.chirkov_android.ui.theme.SubTextDark
 import com.example.chirkov_android.ui.viewModel.CatalogViewModel
+import com.example.chirkov_android.ui.viewModel.CatalogViewModelFactory
 
 @Composable
 fun CatalogScreen(
+    viewModel: CatalogViewModel,
     modifier: Modifier = Modifier,
-    viewModel: CatalogViewModel = viewModel(),
     initialCategoryTitle: String = "Все",
     onBackClick: () -> Unit = {},
     onProductClick: (ProductCardData) -> Unit = {}
@@ -58,19 +50,27 @@ fun CatalogScreen(
     val selected by viewModel.selectedIndex.collectAsState()
     val productsState by viewModel.products.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+    val favouriteIds by viewModel.favouriteIds.collectAsState()
 
     LaunchedEffect(initialCategoryTitle) {
         viewModel.setInitialCategoryTitle(initialCategoryTitle)
     }
 
     val headerTitle = categories.getOrNull(selected)?.title ?: initialCategoryTitle
-    val cardItems = productsState.map { it.toDomain().toCardData() }
+
+    val cardItems = productsState.map { dto ->
+        dto.toDomain().toCardData(
+            isFavorite = favouriteIds.contains(dto.id),
+            onFavoriteClick = { viewModel.toggleFavourite(dto.id) }
+        )
+    }
 
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(Background)
             .padding(horizontal = 16.dp, vertical = 12.dp)
+            .statusBarsPadding()
     ) {
         // Top bar
         Row(
@@ -116,7 +116,6 @@ fun CatalogScreen(
 
         Spacer(Modifier.height(12.dp))
 
-        // Tabs из базы (Все + Tennis/Men/Women/Outdoor)
         LazyRow(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -149,7 +148,7 @@ fun CatalogScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = "Загрузка...")
+                Text(text = "...")
             }
         } else {
             LazyVerticalGrid(
@@ -173,5 +172,5 @@ fun CatalogScreen(
 @Preview
 @Composable
 private fun CatalogScreenPreview() {
-    CatalogScreen()
+//    CatalogScreen()
 }

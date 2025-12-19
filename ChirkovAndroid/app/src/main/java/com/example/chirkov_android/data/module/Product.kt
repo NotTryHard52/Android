@@ -1,7 +1,6 @@
 package com.example.chirkov_android.data.module
 
 import com.example.chirkov_android.R
-import com.example.chirkov_android.data.module.ProductDto
 import com.example.chirkov_android.ui.components.ProductCardData
 
 data class Product(
@@ -10,6 +9,7 @@ data class Product(
     val price: String,
     val isBestSeller: Boolean
 )
+
 fun ProductDto.toDomain(): Product =
     Product(
         id = id,
@@ -18,10 +18,20 @@ fun ProductDto.toDomain(): Product =
         isBestSeller = isBestSeller
     )
 
-fun Product.toCardData(): ProductCardData =
+fun Product.toCardData(
+    isFavorite: Boolean = false,
+    isInCart: Boolean = false,
+    onFavoriteClick: () -> Unit = {},
+    onAddClick: () -> Unit = {}
+): ProductCardData =
     ProductCardData(
-        imageRes = R.drawable.nike,          // пока заглушка, если нет поля image
+        id = id,
+        imageRes = R.drawable.nike,
         label = if (isBestSeller) "BEST SELLER" else "",
         title = title,
-        price = price
+        price = price,
+        isFavorite = isFavorite,
+        isInCart = isInCart,
+        onFavoriteClick = onFavoriteClick,
+        onAddClick = onAddClick
     )
