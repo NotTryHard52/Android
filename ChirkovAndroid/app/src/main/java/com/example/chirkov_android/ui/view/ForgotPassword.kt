@@ -86,7 +86,7 @@ fun ForgotPassword(onBackClick: () -> Unit = {}, onOtpClick: (String) -> Unit = 
                 .size(32.dp)
                 .clip(RoundedCornerShape(16.dp))
                 .background(Background)
-                .clickable {  },
+                .clickable { onBackClick() },
             contentAlignment = Alignment.Center
         ) {
             Image(

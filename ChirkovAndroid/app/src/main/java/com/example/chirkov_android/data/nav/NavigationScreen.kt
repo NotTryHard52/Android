@@ -69,7 +69,8 @@ fun NavigationScreen(navController: NavHostController) {
                         }
                         launchSingleTop = true
                     }
-                }
+                },
+                onBackClick = { navController.popBackStack() }
             )
         }
 

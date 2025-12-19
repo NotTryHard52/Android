@@ -16,8 +16,9 @@
     <string name="PersonalData">Даю согласие на обработку персональных данных</string>
     <string name="SignUp">Зарегистрироваться</string>
     <string name="SignIn">Войти</string>
-    <string name="CreateUser">Вы впервые? Создать пользователя</string>
-    <string name="UserSignIn">Есть аккаунт? Войти</string>
+    <string name="SignInOne">Вы впервые?</string>
+    <string name="CreateUser">Создать пользователя</string>
+    <string name="UserSignIn">Есть аккаунт?</string>
     <string name="Restore">Воcстановить</string>
     <string name="ForgotPassword">Забыл пароль</string>
     <string name="UserRestore">Введите свою учетную запись для сброса</string>
@@ -36,7 +37,7 @@
     <string name="Popular">Популярное</string>
     <string name="All">Все</string>
     <string name="Акции">Акции</string>
-    <string name="Избранное">Избранное</string>
+    <string name="Favorite">Избранное</string>
     <string name="Корзина">Корзина</string>
     <string name="Product">товара</string>
     <string name="Sum">Сумма</string>

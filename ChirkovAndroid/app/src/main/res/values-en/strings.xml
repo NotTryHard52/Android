@@ -17,8 +17,9 @@
     <string name="PersonalData">I agree to the processing of personal data</string>
     <string name="SignUp">Sign up</string>
     <string name="SignIn">Sign In</string>
-    <string name="CreateUser">New User? Create Account</string>
-    <string name="UserSignIn">Already Have Account? Log In</string>
+    <string name="CreateUser">Create Account</string>
+    <string name="UserSignIn">Already Have Account?</string>
+    <string name="SignInOne">Is this your first time?</string>
     <string name="Restore">Recovery Password</string>
     <string name="ForgotPassword">Forgot Password</string>
     <string name="UserRestore">Enter your Email account to reset your password</string>
@@ -37,7 +38,7 @@
     <string name="Popular">Popular Shoes</string>
     <string name="All">See all</string>
     <string name="Акции">New Arrivals</string>
-    <string name="Избранное">Favourite</string>
+    <string name="Favorite">Favourite</string>
     <string name="Корзина">CART</string>
     <string name="Product">Items</string>
     <string name="Sum">Subtotal</string>

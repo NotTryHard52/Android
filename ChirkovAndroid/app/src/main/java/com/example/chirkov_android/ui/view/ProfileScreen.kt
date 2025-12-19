@@ -39,6 +39,7 @@ import com.example.chirkov_android.ui.theme.Block
 import com.example.chirkov_android.ui.theme.SubTextDark
 import com.example.chirkov_android.data.createTempImageUri
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.chirkov_android.ui.theme.CustomTheme
 import com.example.chirkov_android.ui.viewModel.ProfileState
 import com.example.chirkov_android.ui.viewModel.ProfileViewModel
 
@@ -135,8 +136,8 @@ fun ProfileScreen(
                 Text(
                     text = stringResource(R.string.Profile),
                     modifier = Modifier.fillMaxWidth(),
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Medium,
+                    style = CustomTheme.typography.BodyRegular16,
+                    color = CustomTheme.colors.text,
                     textAlign = TextAlign.Center
                 )
 
@@ -181,9 +182,8 @@ fun ProfileScreen(
                 text = fullName,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Medium,
-                color = Color.Black
+                style = CustomTheme.typography.BodyRegular20,
+                color = CustomTheme.colors.text
             )
 
             if (isEditMode) {
@@ -196,15 +196,13 @@ fun ProfileScreen(
                             cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
                         },
                     textAlign = TextAlign.Center,
-                    fontSize = 12.sp,
-                    color = SubTextDark
+                    style = CustomTheme.typography.BodyRegular12,
+                    color = CustomTheme.colors.accent
                 )
             }
 
             Spacer(Modifier.height(14.dp))
 
-            // Barcode можешь оставить как было (или скрывать в edit)
-            // Здесь оставлю скрытым в edit, как в твоём предыдущем варианте:
             if (!isEditMode) {
                 Box(
                     modifier = Modifier
@@ -283,7 +281,8 @@ private fun EditableProfileField(
     onValueChange: (String) -> Unit
 ) {
     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-        Text(text = label, fontSize = 14.sp, color = Color.Black)
+        Text(text = label, style = CustomTheme.typography.BodyRegular14,
+            color = CustomTheme.colors.text)
         Spacer(Modifier.height(8.dp))
 
         OutlinedTextField(

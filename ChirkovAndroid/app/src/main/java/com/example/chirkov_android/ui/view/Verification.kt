@@ -15,36 +15,34 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.delay
 import com.example.chirkov_android.R
 import com.example.chirkov_android.ui.components.OTP
+import com.example.chirkov_android.ui.theme.Accent
 import com.example.chirkov_android.ui.theme.Background
 import com.example.chirkov_android.ui.theme.SubTextDark
-import com.example.chirkov_android.ui.theme.Accent
 import com.example.chirkov_android.ui.theme.CustomTheme
 import com.example.chirkov_android.ui.viewModel.VerificationViewModel
+import kotlinx.coroutines.delay
 
 @Composable
 fun Verification(
@@ -60,7 +58,15 @@ fun Verification(
     val isError by viewModel.isError.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
+    val focusRequesters = remember { List(6) { FocusRequester() } }
+
     LaunchedEffect(Unit) {
+        // фокус на первое поле (после входа на экран)
+        focusRequesters.first().requestFocus()
+    }
+
+    LaunchedEffect(Unit) {
+        // таймер
         while (secondsLeft > 0) {
             delay(1_000)
             secondsLeft--
@@ -75,6 +81,7 @@ fun Verification(
             .statusBarsPadding(),
         verticalArrangement = Arrangement.Top
     ) {
+        // back
         Box(
             modifier = Modifier
                 .size(32.dp)
@@ -90,15 +97,18 @@ fun Verification(
             )
         }
 
+        // title + subtitle
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = stringResource(R.string.OTP),
+            Text(
+                text = stringResource(R.string.OTP),
                 style = CustomTheme.typography.HeadingRegular32,
-                color = CustomTheme.colors.text)
+                color = CustomTheme.colors.text
+            )
             Text(
                 text = stringResource(R.string.OTPEmail),
                 modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
@@ -120,21 +130,29 @@ fun Verification(
 
         Spacer(modifier = Modifier.height(20.dp))
 
+        // OTP fields centered
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(
+                space = 12.dp,
+                alignment = Alignment.CenterHorizontally
+            ),
             verticalAlignment = Alignment.CenterVertically
         ) {
             code.forEachIndexed { index, value ->
                 OTP(
                     value = value,
                     isError = isError,
+                    focusRequester = focusRequesters[index],
+                    prevFocusRequester = focusRequesters.getOrNull(index - 1),
+                    nextFocusRequester = focusRequesters.getOrNull(index + 1),
                     onValueChange = { new ->
                         val newCode = code.toMutableList()
                         newCode[index] = new
                         code = newCode
                         viewModel.resetError()
 
+                        // когда все 6 заполнены — проверяем
                         if (newCode.all { it.isNotEmpty() } && !isLoading) {
                             val fullCode = newCode.joinToString("")
                             viewModel.verifyCode(
@@ -150,6 +168,7 @@ fun Verification(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // timer / resend
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End
@@ -165,11 +184,15 @@ fun Verification(
                     text = "Отправить снова",
                     fontSize = 12.sp,
                     color = Accent,
+                    fontWeight = FontWeight.Medium,
                     modifier = Modifier.clickable(enabled = !isLoading) {
                         secondsLeft = 30
                         canResend = false
                         viewModel.resetError()
                         code = List(6) { "" }
+
+                        // вернуть фокус на первое поле после ресета
+                        focusRequesters.first().requestFocus()
                     }
                 )
             }
@@ -180,5 +203,5 @@ fun Verification(
 @Preview
 @Composable
 private fun VerificationPreview() {
-    Verification("...", {})
+    Verification(email = "test@mail.com")
 }

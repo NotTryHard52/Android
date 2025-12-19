@@ -58,6 +58,7 @@ fun SignIn(
     onRegisterClick: () -> Unit = {},
     onForgotPasswordClick: () -> Unit = {},
     onSuccessNavigate: () -> Unit = {},
+    onBackClick: () -> Unit = {},
     modifier: Modifier = Modifier,
     vm: SignInViewModel = viewModel()
 ) {
@@ -97,7 +98,7 @@ fun SignIn(
                 .size(32.dp)
                 .clip(RoundedCornerShape(16.dp))
                 .background(Background)
-                .clickable {  },
+                .clickable { onBackClick() },
             contentAlignment = Alignment.Center
         ) {
             Image(
@@ -227,14 +228,14 @@ fun SignIn(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Вы впервые?",
+                text = stringResource(R.string.SignInOne),
                 style = CustomTheme.typography.BodyRegular16,
                 color = CustomTheme.colors.subTextDark,
                 lineHeight = 16.sp
             )
             Spacer(modifier = Modifier.width(4.dp))
             Text(
-                text = "Создать",
+                text = stringResource(R.string.CreateUser),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Normal,
                 lineHeight = 16.sp,

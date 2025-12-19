@@ -30,6 +30,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -39,6 +40,7 @@ import com.example.chirkov_android.data.module.toDomain
 import com.example.chirkov_android.ui.theme.Accent
 import com.example.chirkov_android.ui.theme.Background
 import com.example.chirkov_android.ui.theme.Block
+import com.example.chirkov_android.ui.theme.Red
 import com.example.chirkov_android.ui.theme.SubTextDark
 import com.example.chirkov_android.ui.theme.Text as TextColor
 import com.example.chirkov_android.ui.viewModel.CatalogViewModel
@@ -66,7 +68,7 @@ fun ProductDetailsScreen(
                 modifier = Modifier.fillMaxSize().background(Background),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = "Загрузка...", color = TextColor)
+                Text(text = "...", color = TextColor)
             }
             return
         }
@@ -130,7 +132,8 @@ fun ProductDetailsScreen(
                 text = "Sneaker Shop",
                 modifier = Modifier.weight(1f),
                 color = TextColor,
-                fontSize = 18.sp
+                fontSize = 18.sp,
+                textAlign = TextAlign.Center
             )
 
             IconButton(
@@ -141,9 +144,8 @@ fun ProductDetailsScreen(
                     .background(Block)
             ) {
                 Icon(
-                    imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                    contentDescription = "Fav",
-                    tint = if (isFavorite) Accent else TextColor
+                    painter = painterResource(id = R.drawable.cart),
+                    contentDescription = "cart"
                 )
             }
         }
@@ -190,7 +192,6 @@ fun ProductDetailsScreen(
                 contentPadding = PaddingValues(horizontal = 4.dp),
                 verticalAlignment = Alignment.Bottom
             ) { page ->
-                // TODO: когда появится url с сервера — заменить на AsyncImage/Coil
                 Image(
                     painter = painterResource(id = R.drawable.nike),
                     contentDescription = null,
@@ -223,7 +224,6 @@ fun ProductDetailsScreen(
 
         Spacer(Modifier.height(24.dp))
 
-        // ===== BOTTOM: только favorite (без корзины) =====
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -242,7 +242,7 @@ fun ProductDetailsScreen(
                 Icon(
                     imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                     contentDescription = "Fav",
-                    tint = if (isFavorite) Accent else TextColor,
+                    tint = if (isFavorite) Red else TextColor,
                     modifier = Modifier.size(24.dp)
                 )
             }
@@ -283,7 +283,6 @@ private fun ThumbnailsRow(
                     .clickable { onSelect(index) },
                 contentAlignment = Alignment.Center
             ) {
-                // TODO: миниатюра с сервера → AsyncImage/Coil
                 Image(
                     painter = painterResource(id = R.drawable.nike),
                     contentDescription = null,

@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -101,7 +102,7 @@ fun FavoriteScreen(
                 }
 
                 Text(
-                    text = "Избранное",
+                    text = stringResource(R.string.Favorite),
                     modifier = Modifier
                         .weight(1f)
                         .padding(end = 32.dp),
@@ -118,10 +119,7 @@ fun FavoriteScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = "У вас пока нет избранных товаров",
-                        color = SubTextDark,
-                        fontSize = 14.sp
+                    Text( ""
                     )
                 }
             } else {

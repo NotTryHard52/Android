@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,6 +35,7 @@ import com.example.chirkov_android.ui.components.ProductCardData
 import com.example.chirkov_android.ui.theme.Accent
 import com.example.chirkov_android.ui.theme.Background
 import com.example.chirkov_android.ui.theme.Block
+import com.example.chirkov_android.ui.theme.CustomTheme
 import com.example.chirkov_android.ui.theme.SubTextDark
 import com.example.chirkov_android.ui.viewModel.CatalogViewModel
 import com.example.chirkov_android.ui.viewModel.CatalogViewModelFactory
@@ -108,10 +110,10 @@ fun CatalogScreen(
         Spacer(Modifier.height(16.dp))
 
         Text(
-            text = "Категории",
+            text = stringResource(R.string.Category),
             fontSize = 16.sp,
-            fontWeight = FontWeight.Medium,
-            color = SubTextDark
+            style = CustomTheme.typography.BodyMedium16,
+            color = CustomTheme.colors.text,
         )
 
         Spacer(Modifier.height(12.dp))

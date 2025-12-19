@@ -284,14 +284,14 @@ fun RegisterAccount(onSignInClick: () -> Unit = {}, onOtpClick: (String) -> Unit
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Есть аккаунт?",
+                    text = stringResource(R.string.UserSignIn),
                     style = CustomTheme.typography.BodyRegular16,
                     color = CustomTheme.colors.subTextDark,
                     lineHeight = 16.sp,
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = "Войти",
+                    text = stringResource(R.string.SignIn),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Normal,
                     lineHeight = 16.sp,

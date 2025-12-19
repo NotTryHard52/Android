@@ -25,6 +25,7 @@ import com.example.chirkov_android.R
 import com.example.chirkov_android.ui.theme.Accent
 import com.example.chirkov_android.ui.theme.Background
 import com.example.chirkov_android.ui.theme.Block
+import com.example.chirkov_android.ui.theme.CustomTheme
 import com.example.chirkov_android.ui.theme.Hint
 import com.example.chirkov_android.ui.theme.Red
 import com.example.chirkov_android.ui.theme.Text as TextColor
@@ -118,15 +119,15 @@ fun ProductCard(
 
                 Text(
                     text = data.label,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = Accent,
+                    style = CustomTheme.typography.BodyRegular12,
+                    color = CustomTheme.colors.accent,
                     modifier = Modifier.padding(top = 8.dp),
                 )
 
                 Text(
                     text = data.title,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Hint,
+                    style = CustomTheme.typography.BodyRegular16,
+                    color = CustomTheme.colors.hint,
                     modifier = Modifier.padding(top = 4.dp)
                 )
             }
@@ -140,8 +141,8 @@ fun ProductCard(
             ) {
                 Text(
                     text = data.price,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = TextColor,
+                    style = CustomTheme.typography.BodyRegular14,
+                    color = CustomTheme.colors.text,
                     modifier = Modifier.padding(top = 1.dp),
                     textAlign = TextAlign.Start
                 )
