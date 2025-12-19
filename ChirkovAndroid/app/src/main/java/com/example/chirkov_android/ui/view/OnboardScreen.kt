@@ -74,10 +74,9 @@ fun OnboardScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .statusBarsPadding()
-                .padding(horizontal = 24.dp),
+                .statusBarsPadding(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween // важное изменение
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
 
             // ===== PAGER =====
@@ -98,6 +97,7 @@ fun OnboardScreen(
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             modifier = Modifier.fillMaxSize()
+
                         ) {
                             Spacer(modifier = Modifier.height(29.dp))
 
@@ -200,7 +200,8 @@ fun OnboardScreen(
                 text = stringResource(if (pagerState.currentPage == 0) R.string.Start else R.string.Next),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(52.dp),
+                    .height(52.dp)
+                    .padding(horizontal = 24.dp),
                 onClick = {
                     if (pagerState.currentPage < pagerState.pageCount - 1) {
                         coroutineScope.launch {

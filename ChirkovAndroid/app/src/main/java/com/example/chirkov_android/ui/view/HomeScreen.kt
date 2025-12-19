@@ -181,7 +181,7 @@ fun HomeScreen(
 
             if (isLoadingCategories) {
                 Text(
-                    text = "Загрузка категорий...",
+                    text = "...",
                     modifier = Modifier.padding(horizontal = 16.dp),
                     fontSize = 12.sp,
                     color = SubTextDark

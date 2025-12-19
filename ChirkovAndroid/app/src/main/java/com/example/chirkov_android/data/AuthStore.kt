@@ -1,6 +1,7 @@
 package com.example.chirkov_android.data
 
 import android.content.Context
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -14,7 +15,6 @@ class AuthStore(private val context: Context) {
     private val ACCESS_TOKEN = stringPreferencesKey("access_token")
     private val REFRESH_TOKEN = stringPreferencesKey("refresh_token")
     private val USER_ID = stringPreferencesKey("user_id")
-
     val accessToken: Flow<String?> = context.ds.data.map { it[ACCESS_TOKEN] }
     val refreshToken: Flow<String?> = context.ds.data.map { it[REFRESH_TOKEN] }
     val userId: Flow<String?> = context.ds.data.map { it[USER_ID] }
