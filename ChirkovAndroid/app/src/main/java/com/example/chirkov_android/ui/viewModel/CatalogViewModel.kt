@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.net.SocketTimeoutException
 
-class CatalogViewModel(
+open class CatalogViewModel(
     private val authStore: AuthStore
 ) : ViewModel() {
 
@@ -244,6 +244,27 @@ class CatalogViewModel(
                 _favoriteProducts.value = favProducts
             } catch (_: Exception) {
                 // обработать, если нужно
+            }
+        }
+    }
+
+    fun loadAllProductsIfNeeded() {
+        // если уже загружено — не грузим повторно
+        if (_products.value.isNotEmpty()) return
+
+        viewModelScope.launch {
+            _isLoading.value = true
+            _error.value = null
+            try {
+                _products.value = withContext(Dispatchers.IO) {
+                    api.getProducts()
+                }
+            } catch (e: SocketTimeoutException) {
+                _error.value = "Превышен таймаут. Попробуйте еще раз."
+            } catch (e: Exception) {
+                _error.value = "Ошибка загрузки продуктов: ${e.message}"
+            } finally {
+                _isLoading.value = false
             }
         }
     }

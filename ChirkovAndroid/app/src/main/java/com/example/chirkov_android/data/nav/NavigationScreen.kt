@@ -17,6 +17,7 @@ import com.example.chirkov_android.ui.view.FavoriteScreen
 import com.example.chirkov_android.ui.view.ForgotPassword
 import com.example.chirkov_android.ui.view.HomeScreen
 import com.example.chirkov_android.ui.view.OnboardScreen
+import com.example.chirkov_android.ui.view.ProductDetailsScreen
 import com.example.chirkov_android.ui.view.ProfileScreen
 import com.example.chirkov_android.ui.view.RegisterAccount
 import com.example.chirkov_android.ui.view.SignIn
@@ -167,7 +168,12 @@ fun NavigationScreen(navController: NavHostController) {
             CatalogScreen(
                 viewModel = catalogViewModel,
                 initialCategoryTitle = title,
-                onBackClick = { navController.popBackStack() }
+                onBackClick = { navController.popBackStack() },
+                onProductClick = { card ->
+                    navController.navigate(Screen.Details.route(card.id)) {
+                        launchSingleTop = true
+                    }
+                }
             )
         }
 
@@ -182,6 +188,25 @@ fun NavigationScreen(navController: NavHostController) {
                         3 -> navController.navigate(Screen.Profile.route) { launchSingleTop = true }
                     }
                 }
+            )
+        }
+
+        composable(
+            route = Screen.Details.route,
+            arguments = listOf(
+                navArgument(Screen.Details.PRODUCT_ID_ARG) {
+                    type = NavType.StringType
+                }
+            )
+        ) { entry ->
+            val productId = entry.arguments
+                ?.getString(Screen.Details.PRODUCT_ID_ARG)
+                .orEmpty()
+
+            ProductDetailsScreen(
+                startProductId = productId,
+                viewModel = catalogViewModel,
+                onBackClick = { navController.popBackStack() }
             )
         }
     }

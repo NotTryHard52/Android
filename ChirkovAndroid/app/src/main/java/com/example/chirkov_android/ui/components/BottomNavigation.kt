@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -24,6 +25,7 @@ import com.example.chirkov_android.ui.theme.Block
 import com.example.chirkov_android.ui.theme.SubTextDark
 
 data class NavTab(val iconId: Int, val title: String)
+
 
 @Composable
 fun CustomBottomBar(
@@ -35,15 +37,27 @@ fun CustomBottomBar(
     onTabClick: (Int) -> Unit,
     barColor: Color = Block,
     fabColor: Color = Accent,
-    iconColor: Color = SubTextDark
+    iconColor: Color = SubTextDark,
+    backgroundRes: Int = R.drawable.bottom_bar_bg
 ) {
     Box(modifier = modifier.fillMaxWidth()) {
 
+        // ФОН-КАРТИНКА ПОД МЕНЮ
+        Image(
+            painter = painterResource(id = backgroundRes),
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(80.dp),
+            contentScale = ContentScale.FillBounds
+        )
+
+        // Контент меню поверх картинки
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(80.dp)
-                .background(barColor)
+                // убираем .background(barColor)
                 .padding(horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
